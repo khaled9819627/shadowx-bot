@@ -1,15 +1,21 @@
 module.exports = {
-  name: "مطور",
-  description: "يعرض معلومات المطور",
-  command: ["مطور", "المطور", "owner"],
-  type: "whatsapp",
+  command: 'المطور',
+  description: 'يعرض معلومات مطور البوت',
+  category: 'info',
+  usage: '.المطور',
 
-  onCommand: async ({ msg, send }) => {
-    await send(msg.chat, `
-👑 مطور البوت:
-• الاسم: 𝐒𝐇𝐀𝐃𝐎𝐖 𝐗
-• الرقم: wa.me/963968552137
-• GitHub: github.com/khaled9819627
-    `);
+  async execute(sock, msg) {
+    const message = `
+╭── ⌯ معلومات المطور ⌯ ──╮
+│ 👑 الاسم : خالد
+│ 🔗 GitHub : khaled9819627
+│ 📞 واتساب : +963968552137
+│ 🤖 البوت : SHADOWX BOT
+╰──────────────────────╯
+`.trim();
+
+    await sock.sendMessage(msg.key.remoteJid, {
+      text: message
+    }, { quoted: msg });
   }
 };
