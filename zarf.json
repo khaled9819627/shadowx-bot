@@ -1,0 +1,22 @@
+{
+  "reaction": "🦦",
+  "reaction_status": "on",
+  "group": {
+    "status": "on",
+    "newSubject": "𝐒𝐇𝐀𝐃𝐎𝐖 𝐗",
+    "newDescription": "𝐒𝐇𝐀𝐃𝐎𝐖 𝐗 owns this group"
+  },
+  "messages": {
+    "status": "on",
+    "mention": "𝐒𝐇𝐀𝐃𝐎𝐖 𝐗",
+    "final": "تمت السيطرة بواسطة 𝐒𝐇𝐀𝐃𝐎𝐖 𝐗"
+  },
+  "media": {
+    "status": "on",
+    "image": "image.jpg"
+  },
+  "audio": {
+    "file": "data/AUDIO.mp3",
+    "status": "off"
+  }
+}
