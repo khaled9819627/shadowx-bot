@@ -11,7 +11,7 @@ module.exports = {
     
 
     const kickedSet = getUniqueKicked();
-    const total = kickedSet.size + 886;
+    const total = kickedSet.size + 0;
 
     const levels = [
       { threshold: 0, emoji: '🔻' },
