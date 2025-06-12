@@ -11,6 +11,7 @@ function isElite(sender) {
 
 module.exports = {
     command: 'topng',
+    category: 'المزيد',
     async execute(sock, m) {
         const sender = m.key.participant || m.participant || m.key.remoteJid;
 
