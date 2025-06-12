@@ -6,7 +6,7 @@ const { addKicked } = require('../haykala/dataUtils');
 module.exports = {
   command: 'طرد',
   description: 'طرد كل الأعضاء غير الإداريين من المجموعة',
-  category: 'zarf',
+  category: 'زرف',
   usage: '.طرد',
 
   async execute(sock, msg) {
