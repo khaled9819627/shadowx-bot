@@ -7,7 +7,7 @@ module.exports = {
   command: ['هل'],
   description: 'يتحقق مما إذا تم زرف الشخص سابقًا',
   usage: '.هل [منشن | رقم | رد]',
-  category: 'zarf',
+  category: 'زرف',
 
   async execute(sock, msg, args) {
     try {
