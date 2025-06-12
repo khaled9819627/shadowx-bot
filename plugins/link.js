@@ -4,7 +4,7 @@ const { jidDecode } = require('@whiskeysockets/baileys');
 module.exports = {
   command: 'خش',
   description: 'يقوم البوت بالدخول إلى مجموعة عند إرسال رابط دعوة (للنخبة فقط).',
-  category: 'tools',
+  category: 'أدوات',
   usage: '.خش <رابط_المجموعة>',
   async execute(sock, m, args) {
     try {
