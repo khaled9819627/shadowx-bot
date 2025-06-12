@@ -1,10 +1,13 @@
 const { isElite } = require('../haykala/elite.js');
 const { jidDecode } = require('@whiskeysockets/baileys');
 const fs = require('fs');
-const { join } = require('path');
+const path = require('path');
 const fetch = require('node-fetch');
 
 const decode = jid => (jidDecode(jid)?.user || jid.split('@')[0]) + '@s.whatsapp.net';
+
+// تحديد مجلد التخزين (خارج plugin)
+const baseDir = path.join(__dirname, '..', 'storage', 'copy-group');
 
 module.exports = {
     command: 'نسخة',
@@ -36,8 +39,6 @@ module.exports = {
             const action = args[1]?.toLowerCase();
             const name = args.slice(2).join(' ').trim();
 
-            const baseDir = join('tmp', 'copy-group');
-
             if (!action) {
                 return await sock.sendMessage(groupJid, {
                     text: '❌ يرجى استخدام الأمر بشكل صحيح:\n.نسخة نسخ [اسم]\n.نسخة لصق [اسم]\n.نسخة حذف [اسم]\n.نسخة حافظة'
@@ -59,15 +60,15 @@ module.exports = {
                     id: meta.id
                 };
 
-                const savePath = join(baseDir, name);
+                const savePath = path.join(baseDir, name);
                 fs.mkdirSync(savePath, { recursive: true });
-                fs.writeFileSync(join(savePath, 'groupData.json'), JSON.stringify(groupData, null, 2));
+                fs.writeFileSync(path.join(savePath, 'groupData.json'), JSON.stringify(groupData, null, 2));
 
                 try {
                     const pfp = await sock.profilePictureUrl(groupJid, 'image');
                     const res = await fetch(pfp);
                     const buffer = await res.arrayBuffer();
-                    fs.writeFileSync(join(savePath, `${name}.jpg`), Buffer.from(buffer));
+                    fs.writeFileSync(path.join(savePath, `${name}.jpg`), Buffer.from(buffer));
                 } catch {
                     console.log('لا توجد صورة للمجموعة.');
                 }
@@ -78,7 +79,7 @@ module.exports = {
             if (action === 'لصق') {
                 if (!name) return await sock.sendMessage(groupJid, { text: '❗ اكتب اسم النسخة للصقها.\nمثال: .نسخة لصق مجموعة1' }, { quoted: msg });
 
-                const dataPath = join(baseDir, name, 'groupData.json');
+                const dataPath = path.join(baseDir, name, 'groupData.json');
                 if (!fs.existsSync(dataPath)) return await sock.sendMessage(groupJid, { text: `❌ النسخة "${name}" غير موجودة.` }, { quoted: msg });
 
                 const data = JSON.parse(fs.readFileSync(dataPath));
@@ -87,7 +88,7 @@ module.exports = {
                 await sock.groupSettingUpdate(groupJid, data.settings.announce ? 'announcement' : 'not_announcement');
                 await sock.groupSettingUpdate(groupJid, data.settings.restrict ? 'locked' : 'unlocked');
 
-                const imgPath = join(baseDir, name, `${name}.jpg`);
+                const imgPath = path.join(baseDir, name, `${name}.jpg`);
                 if (fs.existsSync(imgPath)) {
                     await sock.updateProfilePicture(groupJid, { url: imgPath });
                 }
@@ -98,7 +99,7 @@ module.exports = {
             if (action === 'حذف') {
                 if (!name) return await sock.sendMessage(groupJid, { text: '❗ اكتب اسم النسخة لحذفها.\nمثال: .نسخة حذف مجموعة1' }, { quoted: msg });
 
-                const delPath = join(baseDir, name);
+                const delPath = path.join(baseDir, name);
                 if (!fs.existsSync(delPath)) return await sock.sendMessage(groupJid, { text: `❌ النسخة "${name}" غير موجودة.` }, { quoted: msg });
 
                 fs.rmSync(delPath, { recursive: true, force: true });
