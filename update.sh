@@ -6,8 +6,7 @@ git fetch --all
 git reset --hard origin/main
 
 echo "📦 تثبيت الحزم..."
-npm install
+npm install --legacy-peer-deps
 
 echo "✅ تم التحديث بنجاح! جارٍ تشغيل البوت..."
-chmod +x start.sh
-./start.sh
+node .
