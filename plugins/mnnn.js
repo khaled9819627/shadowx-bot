@@ -3,7 +3,7 @@ const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 
 module.exports = {
   command: 'منشن',
-  category: 'tools',
+  category: 'أدوات',
   description: 'منشن جماعي للكل، أو إعادة إرسال الرسالة المردود عليها كمنشن خفي (للنخبة فقط)',
 
   async execute(sock, msg, args = []) {
