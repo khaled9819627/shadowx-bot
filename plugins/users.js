@@ -1,19 +1,46 @@
 const fs = require('fs');
 const path = require('path');
 
-const usersFile = path.join(__dirname, 'data', 'users.json');
+const dataFilePath = path.join(__dirname, '..', 'usersData.json');
 
-function loadUsers() {
-  if (!fs.existsSync(usersFile)) return {};
-  const data = fs.readFileSync(usersFile, 'utf8');
-  return JSON.parse(data);
+function readUsersData() {
+  if (!fs.existsSync(dataFilePath)) return {};
+  try {
+    const raw = fs.readFileSync(dataFilePath, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
 }
 
-function saveUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+function writeUsersData(data) {
+  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
 }
 
 module.exports = {
-  loadUsers,
-  saveUsers
+  command: 'user',
+  description: 'أمر مثال للتعامل مع بيانات المستخدمين',
+  async execute(sock, msg) {
+    const chatId = msg.key.remoteJid;
+
+    // قراءة بيانات المستخدمين من الملف الخارجي
+    let users = readUsersData();
+
+    // لو ما في بيانات للمحادثة
+    if (!users[chatId]) {
+      users[chatId] = {
+        count: 0,
+        // أي بيانات تحب تحفظها
+      };
+    }
+
+    // مثال تعديل بيانات
+    users[chatId].count++;
+
+    // حفظ البيانات مجددًا
+    writeUsersData(users);
+
+    // إرسال رد للمستخدم مع عدد التفاعل
+    await sock.sendMessage(chatId, { text: `تم التفاعل ${users[chatId].count} مرة.` }, { quoted: msg });
+  }
 };
