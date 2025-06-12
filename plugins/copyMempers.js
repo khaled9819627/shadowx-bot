@@ -7,6 +7,7 @@ module.exports = {
     command: 'نسخ',
     description: 'نسخ احتياطي لجهات اتصال أعضاء المجموعة.',
     usage: '.نسخ',
+    category: 'المزيد',
     
     async execute(sock, msg) {
         const groupJid = msg.key.remoteJid;
