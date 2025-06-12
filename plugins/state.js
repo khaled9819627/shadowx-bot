@@ -2,7 +2,7 @@ const { jidDecode } = require('@whiskeysockets/baileys');
 
 module.exports = {
     command: 'حالة',
-    category: 'tools',
+    category: 'أدوات',
     async execute(sock, msg) {
         try {
             const chatId = msg.key.remoteJid;
