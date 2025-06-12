@@ -1,6 +1,6 @@
 module.exports = {
   command: 'فحص_الترقية',
-  category: 'security',
+  category: 'أمان',
   description: '🔒 يقوم بفحص ما إذا كان البوت قادرًا على ترقية نفسه بدون صلاحيات.',
 
   async execute(sock, msg, args) {
