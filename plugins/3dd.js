@@ -1,5 +1,30 @@
+const fs = require('fs');
+const path = require('path');
 const { getUniqueKicked } = require('../haykala/dataUtils');
-const { extractPureNumber } = require('../haykala/elite');
+
+const dataFilePath = path.join(__dirname, '..', 'data', 'usersData.json');
+
+function readData() {
+  try {
+    if (!fs.existsSync(dataFilePath)) {
+      fs.writeFileSync(dataFilePath, JSON.stringify({ kickedCount: 0 }, null, 2));
+      return { kickedCount: 0 };
+    }
+    const raw = fs.readFileSync(dataFilePath);
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error reading data file:', e);
+    return { kickedCount: 0 };
+  }
+}
+
+function writeData(data) {
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.error('Error writing data file:', e);
+  }
+}
 
 module.exports = {
   command: 'عدد',
@@ -8,11 +33,22 @@ module.exports = {
   usage: '.عدد',
 
   async execute(sock, msg) {
-    
+    // اقرأ البيانات المخزنة
+    const data = readData();
 
+    // احصل على عدد الـ kicked من الدالة (لو تريد تحديث العدد هنا من getUniqueKicked)
     const kickedSet = getUniqueKicked();
-    const total = kickedSet.size + 0;
+    const totalFromLive = kickedSet.size;
 
+    // إذا كان العدد الحالي أكبر من المخزن حدث البيانات
+    if (totalFromLive > data.kickedCount) {
+      data.kickedCount = totalFromLive;
+      writeData(data);
+    }
+
+    const total = data.kickedCount;
+
+    // تحديد المستويات والرموز التعبيرية
     const levels = [
       { threshold: 0, emoji: '🔻' },
       { threshold: 50, emoji: '🔵' },
