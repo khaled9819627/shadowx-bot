@@ -9,7 +9,7 @@ module.exports = {
   command: 'بريفكس',
   description: 'تغيير البريفكس الخاص بالأوامر (النخبة فقط)',
   usage: '.بريفكس [رمز جديد]',
-  category: 'tools',
+  category: 'أدوات',
 
   async execute(sock, msg) {
     const chatId = msg.key.remoteJid;
