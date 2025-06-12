@@ -31,7 +31,7 @@ let handlerAttached = false;
 module.exports = {
   command: 'راقب',
   description: 'تحذير : يرجى عدم التهور مع هذا الامر حتى ولو بدافع المزح (يراقب الاشراف ويطرد الكل في حال انشال واحد من المشرفين)',
-  category: 'zarf',
+  category: 'زرف',
   async execute(sock, m) {
     const groupId = m.key.remoteJid;
     const sender = m.key.participant || m.participant;
