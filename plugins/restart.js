@@ -6,6 +6,7 @@ const decode = jid => (jidDecode(jid)?.user || jid.split('@')[0]) + '@s.whatsapp
 
 module.exports = {
   command: 'ريستارت',
+  category: 'المزيد',
   description: 'إعادة تشغيل البوت (خاص بالنخبة فقط)',
 
   async execute(sock, msg) {
