@@ -14,6 +14,7 @@ module.exports = {
   command: "حظر",
   description: "يضيف كلمة إلى قائمة الكلمات المحظورة.",
   usage: ".حظر [الكلمة]",
+  category: 'المزيد',
 
   async execute(sock, msg) {
     try {
