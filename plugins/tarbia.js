@@ -16,6 +16,7 @@ if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, JSON.stringify([]), 'ut
 
 module.exports = {
   command: 'ربيهم',
+  category: 'المزيد',
   description: 'يقوم بحذف الرسائل التي تحتوي على كلمات محظورة (بإذن النخبة).',
 
   async execute(sock, msg) {
