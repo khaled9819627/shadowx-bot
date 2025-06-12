@@ -8,6 +8,7 @@ module.exports = {
     command: 'icon',
     description: 'تغيير صورة الجروب، متاح فقط للنخبة.',
     usage: '.icon (أرسل صورة أو رد على صورة)',
+    category: 'المزيد',
     
     async execute(sock, msg) {
         try {
