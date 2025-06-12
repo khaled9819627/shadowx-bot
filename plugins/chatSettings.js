@@ -7,7 +7,8 @@ module.exports = {
     command: 'شات',
     description: 'إدارة إعدادات الجروب من فتح أو قفل.',
     usage: '.شات [فتح|قفل]',
-
+    category: 'المزيد',
+    
     async execute(sock, msg) {
         try {
             const groupJid = msg.key.remoteJid;
