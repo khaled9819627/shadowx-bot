@@ -1,7 +1,7 @@
 module.exports = {
   command: 'المطور',
   description: 'يعرض معلومات مطور البوت',
-  category: 'info',
+  category: 'أشياء اخرى',
   usage: '.المطور',
 
   async execute(sock, msg) {
