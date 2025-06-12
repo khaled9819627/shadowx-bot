@@ -9,7 +9,7 @@ module.exports = {
     command: 'bot',
     description: 'تشغيل أو إيقاف 𝐒𝐇𝐀𝐃𝐎𝐖 𝐗',
     usage: '.bot [on/off]',
-    category: 'tools',
+    category: 'أدوات',
 
     async execute(sock, msg) {
         const jid = msg.key.remoteJid;
