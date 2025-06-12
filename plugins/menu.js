@@ -6,7 +6,7 @@ module.exports = {
   status: "on",
   name: 'Bot Commands',
   command: ['اوامر'],
-  category: 'tools',
+  category: 'أدوات',
   description: 'قائمة الأوامر بحسب الفئة',
   hidden: false,
   version: '3.0',
