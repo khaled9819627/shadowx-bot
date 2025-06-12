@@ -4,13 +4,14 @@
   "description": "WhatsApp Bot",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "postinstall": "npm install --legacy-peer-deps || true"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.4.0",
+    "@whiskeysockets/baileys": "^6.17.16",
     "axios": "^1.6.7",
     "canvas": "^2.10.2",
-    "chalk": "^5.3.0",
+    "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.12",
     "child_process": "^1.0.2",
     "figlet": "^1.5.2",
@@ -23,7 +24,7 @@
     "node-fetch": "^3.3.2",
     "node-webpmux": "^3.2.1",
     "pino": "^9.6.0",
-    "sharp": "^0.34.1",
+    "sharp": "^0.32.6",
     "tmp": "^0.2.1"
   }
 }
