@@ -2,6 +2,7 @@ const fs = require('fs');
 
 module.exports = {
     command: 'تحرش',
+    category: 'المزيد',
     async execute(sock, m) {
         const chatId = m.key.remoteJid;
         const sender = m.key.participant || m.participant || m.key.remoteJid;
