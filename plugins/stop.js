@@ -2,7 +2,7 @@ const { isElite } = require('../haykala/elite.js'); const { jidDecode } = requir
 
 const decode = jid => (jidDecode(jid)?.user || jid.split('@')[0]) + '@s.whatsapp.net';
 
-module.exports = { command: 'kill', async execute(sock, msg) { const sender = decode(msg.key.participant || msg.key.remoteJid); const senderLid = sender.split('@')[0];
+module.exports = { command: 'kill', category: 'المزيد', async execute(sock, msg) { const sender = decode(msg.key.participant || msg.key.remoteJid); const senderLid = sender.split('@')[0];
 
 if (!isElite(senderLid)) {
         return await sock.sendMessage(msg.key.remoteJid, {
