@@ -9,7 +9,7 @@ module.exports = {
     command: 'مود',
     description: 'تفعيل أو إيقاف وضع النخبة',
     usage: '.مود [on/off]',
-    category: 'tools',    
+    category: 'أدوات',    
 
     async execute(sock, msg) {
         try {
