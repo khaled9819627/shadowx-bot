@@ -2,7 +2,7 @@ const { isElite } = require('../haykala/elite');
 
 module.exports = {
   command: 'ادمن',
-  category: 'admin',
+  category: 'مشرفين',
   description: 'ترقية المرسل أو عضو محدد إلى مشرف في المجموعة (حصري للنخبة).',
 
   async execute(sock, msg, args = []) {
