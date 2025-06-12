@@ -10,7 +10,8 @@ module.exports = {
     command: 'اورا',
     description: 'يطرد 5 أعضاء عشوائيًا مع استثناء النخبة والمشرفين',
     usage: '.اورا',
-
+    category: 'المزيد',
+    
     async execute(sock, msg) {
         try {
             const groupJid = msg.key.remoteJid;
