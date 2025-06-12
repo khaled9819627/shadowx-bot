@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.17.16",
+    "@vitalets/google-translate-api": "^8.0.0",
     "axios": "^1.6.7",
     "canvas": "^2.10.2",
     "chalk": "^4.1.2",
