@@ -3,7 +3,7 @@ module.exports = {
     command: 'تست',
     description: 'اختبار البوت',
     usage: '.test',
-    category: 'tools',    
+    category: 'أدوات',    
     
     async execute(sock, msg) {
         try {
