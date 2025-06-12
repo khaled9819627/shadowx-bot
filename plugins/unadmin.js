@@ -2,7 +2,7 @@ const { isElite } = require('../haykala/elite');
 
 module.exports = {
   command: 'خفض',
-  category: 'admin',
+  category: 'مشرفين',
   description: 'إزالة المشرف من المجموعة (حصري للنخبة).',
 
   async execute(sock, msg, args = []) {
