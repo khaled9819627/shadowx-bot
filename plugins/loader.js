@@ -1,27 +1,26 @@
-const fs = require('fs-extra');
+const fs = require('fs');
 const path = require('path');
 
 module.exports = async function loadUserPlugins(userId) {
-    const basePluginDir = path.join(__dirname); // مجلد plugins
-    const userPluginDir = path.join(__dirname, '..', 'users', userId, 'plugins');
+    const defaultPluginsDir = path.join(__dirname);
+    const userPluginsDir = path.join(__dirname, '../users', userId, 'plugins');
 
-    // إذا مجلد أوامر المستخدم مش موجود، انسخ له نسخة من الأساسية
-    if (!(await fs.pathExists(userPluginDir))) {
-        await fs.ensureDir(userPluginDir);
-        await fs.copy(basePluginDir, userPluginDir, {
-            filter: (src) => !src.endsWith('loader.js') // لا تنسخ هذا الملف نفسه
-        });
+    // إذا ما كان عنده مجلد خاص، انسخ له النسخة الأولى
+    if (!fs.existsSync(userPluginsDir)) {
+        fs.mkdirSync(userPluginsDir, { recursive: true });
+        const defaultFiles = fs.readdirSync(defaultPluginsDir).filter(file => file.endsWith('.js'));
+        for (const file of defaultFiles) {
+            fs.copyFileSync(path.join(defaultPluginsDir, file), path.join(userPluginsDir, file));
+        }
     }
 
-    // تحميل أوامر المستخدم من مجلده
-    const files = await fs.readdir(userPluginDir);
-    for (const file of files) {
-        if (file.endsWith('.js')) {
-            try {
-                require(path.join(userPluginDir, file));
-            } catch (e) {
-                console.error(`[PLUGIN ERROR] ${file}:`, e.message);
-            }
+    // تحميل أوامر المستخدم
+    const pluginFiles = fs.readdirSync(userPluginsDir).filter(file => file.endsWith('.js'));
+    for (const file of pluginFiles) {
+        try {
+            require(path.join(userPluginsDir, file));
+        } catch (e) {
+            console.log(`[PLUGIN ERROR] ${file}:`, e.message);
         }
     }
 };
