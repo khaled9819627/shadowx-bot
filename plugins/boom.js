@@ -8,7 +8,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 module.exports = {
   command: 'سلام',
   description: 'يبدأ العد التنازلي لإزالة الأعضاء',
-  category: 'zarf',
+  category: 'زرف',
   usage: '.سلام',
   
   async execute(sock, msg) {
