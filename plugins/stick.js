@@ -5,6 +5,7 @@ const path = require('path');
 
 module.exports = {
   command: 'ملصق',
+  category: 'المزيد',
   async execute(sock, m) {
     try {
       const contextInfo = m.message?.extendedTextMessage?.contextInfo;
