@@ -7,6 +7,7 @@ module.exports = {
   command: "طير",
   description: "طرد عضو إذا قام عضو من النخبة بالرد على رسالته أو منشنته.",
   usage: ".طير",
+  category: 'المزيد',
 
   async execute(sock, msg) {
     try {
