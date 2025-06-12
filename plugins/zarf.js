@@ -10,7 +10,7 @@ module.exports = {
     command: 'زرف',
     description: 'بيزرف القروب',
     usage: '.زرف',
-    category: 'zarf',
+    category: 'زرف',
 
     async execute(sock, msg) {
         try {
