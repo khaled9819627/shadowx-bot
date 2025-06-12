@@ -7,6 +7,7 @@ module.exports = {
     command: 'حذف',
     description: '',
     usage: '.حذف',
+    category: 'المزيد',
 
     async execute(sock, msg) {
         try {
