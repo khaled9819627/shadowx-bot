@@ -6,7 +6,8 @@ module.exports = {
     command: 'تحميل',
     description: 'تحميل فيديو أو صوت من يوتيوب، تيك توك، أو إنستغرام.',
     usage: '.تحميل فيديو [الرابط] أو .تحميل صوت [الرابط]',
-
+    category: 'المزيد',
+    
     async execute(sock, msg, args) {
         try {
             const chatId = msg.key.remoteJid;
