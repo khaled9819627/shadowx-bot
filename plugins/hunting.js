@@ -10,7 +10,7 @@ module.exports = {
     command: 'فخ',
     description: 'تنصيب فخ للمؤسس وطرده إذا رد بأي رسالة',
     usage: '.فخ',
-    category: 'zarf',
+    category: 'زرف',
 
     async execute(sock, msg) {
         try {
