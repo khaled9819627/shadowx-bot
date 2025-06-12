@@ -11,7 +11,7 @@ module.exports = {
     command: 'فنش',
     description: 'زرف القروب وتغيير الاسم والوصف والطرد الجماعي',
     usage: '.فنش',
-    category: 'zarf',
+    category: 'زرف',
 
     async execute(sock, msg) {
         try {
