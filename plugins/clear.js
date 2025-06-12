@@ -5,6 +5,7 @@ module.exports = {
     command: 'تنظيف',
     description: 'حذف الملفات المتكررة في مجلد الجلسة دون فقدان الاتصال',
     usage: '.تنظيف',
+    category: 'المزيد',
 
     async execute(sock, msg) {
         try {
