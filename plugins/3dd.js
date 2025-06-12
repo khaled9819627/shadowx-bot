@@ -4,7 +4,7 @@ const { extractPureNumber } = require('../haykala/elite');
 module.exports = {
   command: 'عدد',
   description: 'يعرض عدد الأعضاء الذين تم طردهم ومستوى التصفية',
-  category: 'zarf',
+  category: 'زرف',
   usage: '.عدد',
 
   async execute(sock, msg) {
