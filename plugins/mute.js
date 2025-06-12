@@ -35,6 +35,7 @@ let unwatch = null;
 
 module.exports = {
   command: 'كتم',
+  category: 'المزيد',
   description: 'كتم أو إلغاء كتم عضو (للنخبة فقط)',
   async execute(sock, m) {
     const chatId = m.key.remoteJid;
