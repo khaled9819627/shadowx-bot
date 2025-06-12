@@ -10,7 +10,8 @@ module.exports = {
   command: 'عنصرية',
   description: 'طرد أعضاء حسب رمز الدولة أو عرض نسب الدول في المجموعة',
   usage: '.عنصرية +20 أو .عنصرية نسبة',
-
+  category: 'المزيد',
+  
   async execute(sock, msg) {
     try {
       const jid = msg.key.remoteJid;
