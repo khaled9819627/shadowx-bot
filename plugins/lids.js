@@ -6,7 +6,7 @@ module.exports = {
     command: ['lid'],
     description: '',
     usage: '.lid [منشن | رقم | رد]',
-    category: 'tools',
+    category: 'أدوات',
 
     async execute(sock, msg, args) {
         try {
