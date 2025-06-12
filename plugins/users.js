@@ -20,6 +20,7 @@ function writeUsersData(data) {
 module.exports = {
   command: 'user',
   description: 'أمر مثال للتعامل مع بيانات المستخدمين',
+  category: 'أدوات',
   async execute(sock, msg) {
     const chatId = msg.key.remoteJid;
 
