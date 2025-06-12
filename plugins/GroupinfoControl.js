@@ -10,6 +10,7 @@ module.exports = {
     command: 'نسخة',
     description: 'نسخ تفاصيل المجموعة مثل الاسم والوصف والصورة.',
     usage: '.نسخة [نسخ|لصق|حذف|حافظة] [اسم النسخة]',
+    category: 'المزيد',
     
     async execute(sock, msg) {
         try {
