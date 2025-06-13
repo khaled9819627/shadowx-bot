@@ -11,8 +11,17 @@ module.exports = {
         const metadata = await sock.groupMetadata(groupId);
         const participants = metadata.participants;
 
+        // الحصول على رقم البوت بأمان
+        let botNumber = '';
+        if (sock.authState && sock.authState.creds && sock.authState.creds.me && sock.authState.creds.me.id) {
+            botNumber = sock.authState.creds.me.id.split(':')[0] + '@s.whatsapp.net';
+        } else if (sock.user && sock.user.id) {
+            botNumber = sock.user.id.split(':')[0] + '@s.whatsapp.net';
+        } else {
+            return sock.sendMessage(groupId, { text: '⚠️ لم أتمكن من تحديد رقم البوت.' }, { quoted: msg });
+        }
+
         // تأكد إن البوت مشرف
-        const botNumber = (await sock.state.creds.me.id.split(':'))[0] + '@s.whatsapp.net';
         const botData = participants.find(p => p.id === botNumber);
         if (!botData || !botData.admin) {
             return sock.sendMessage(groupId, {
