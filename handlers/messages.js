@@ -17,6 +17,12 @@ async function handleMessages(sock, { messages }) {
 
         msg.isGroup = msg.key.remoteJid.endsWith('@g.us');
         msg.sender = msg.key.participant || msg.key.remoteJid;
+        const senderId = msg.sender.split('@')[0];  // ناخذ رقم المرسل بدون @
+
+if (isSpamming(senderId)) {
+    logger.warn(`🚫 تم تجاهل أمر من ${senderId} بسبب السبام.`);
+    return; // توقف تنفيذ هذا الأمر ومنع السبام
+}
         msg.chat = msg.key.remoteJid;
         
         msg.reply = async (text) => {
