@@ -25,5 +25,6 @@
     "node-webpmux": "^3.2.1",
     "pino": "^9.6.0",
     "tmp": "^0.2.1"
+    "tesseract.js": "^4.1.1",
   }
 }
