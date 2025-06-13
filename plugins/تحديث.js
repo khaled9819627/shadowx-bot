@@ -6,8 +6,9 @@ module.exports = {
   category: 'أوامر المطور',
 
   async execute(sock, msg) {
-    const sender = msg.sender.split('@')[0];
-    if (sender !== '963968552137') { // عدل الرقم لرقمك إذا اختلف
+    const sender = (msg.sender || msg.key.participant || msg.key.remoteJid).split('@')[0];
+
+    if (sender !== '963968552137') {
       return await sock.sendMessage(msg.key.remoteJid, {
         text: '❌ هذا الأمر مخصص للمطور فقط.'
       }, { quoted: msg });
@@ -29,10 +30,9 @@ module.exports = {
         text: `✅ تم سحب التحديث:\n${stdout}\n🔁 جارٍ إعادة تشغيل البوت...`
       }, { quoted: msg });
 
-      // إعادة التشغيل
       exec('pm2 restart all', (e) => {
         if (e) {
-          exec('node .'); // fallback بدون pm2
+          exec('node .'); // fallback إذا ما فيه pm2
         }
       });
     });
