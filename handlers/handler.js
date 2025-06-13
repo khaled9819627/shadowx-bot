@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { isElite } = require('../haykala/elite');
 const { playSound } = require('../main');
+const { isSpamming } = require('../utils/antiSpam');
 
 const commands = new Map();
 
