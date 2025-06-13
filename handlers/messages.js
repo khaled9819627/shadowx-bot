@@ -2,6 +2,7 @@ const config = require('../config');
 const logger = require('../utils/console');
 const { loadPlugins } = require('./plugins');
 const crypto = require('crypto');
+const { isSpamming } = require('../utils/antiSpam');
 
 async function handleMessages(sock, { messages }) {
     if (!messages || !messages[0]) return;
