@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
-    "postinstall": "npm install --legacy-peer-deps || true"
+  "postinstall": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.17.16",
