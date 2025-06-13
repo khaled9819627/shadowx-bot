@@ -75,6 +75,10 @@ async function handleMessages(sock, { messages }) {
         } else {
             senderNumber = message.key.remoteJid.split('@')[0];
         }
+        if (isSpamming(senderNumber)) {
+    logger.warn(`🚫 تم تجاهل أمر من ${senderNumber} بسبب السبام.`);
+    return;
+        }
 
         // التحقق من وضع النخبة
         const modePath = path.join(__dirname, '../data/mode.txt');
