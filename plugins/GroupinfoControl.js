@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 
 const decode = jid => (jidDecode(jid)?.user || jid.split('@')[0]) + '@s.whatsapp.net';
 
-// تحديد مجلد التخزين (خارج plugin)
+// تحديد مجلد التخزين (تأكد أنه موجود وقابل للكتابة)
 const baseDir = path.join(__dirname, '..', 'storage', 'copy-group');
 
 module.exports = {
@@ -31,6 +31,12 @@ module.exports = {
                 return await sock.sendMessage(groupJid, {
                     text: '❌ ليس لديك صلاحية لاستخدام هذا الأمر.'
                 }, { quoted: msg });
+            }
+
+            // تأكد أن مجلد التخزين موجود
+            if (!fs.existsSync(baseDir)) {
+                fs.mkdirSync(baseDir, { recursive: true });
+                console.log('تم إنشاء مجلد التخزين:', baseDir);
             }
 
             const body = msg.message?.extendedTextMessage?.text ||
@@ -66,11 +72,17 @@ module.exports = {
 
                 try {
                     const pfp = await sock.profilePictureUrl(groupJid, 'image');
-                    const res = await fetch(pfp);
-                    const buffer = await res.arrayBuffer();
-                    fs.writeFileSync(path.join(savePath, `${name}.jpg`), Buffer.from(buffer));
-                } catch {
-                    console.log('لا توجد صورة للمجموعة.');
+                    if (!pfp) {
+                        console.log('لا توجد صورة للمجموعة.');
+                    } else {
+                        const res = await fetch(pfp);
+                        if (!res.ok) throw new Error(`فشل تحميل الصورة: ${res.status} ${res.statusText}`);
+                        const buffer = await res.arrayBuffer();
+                        fs.writeFileSync(path.join(savePath, `${name}.jpg`), Buffer.from(buffer));
+                        console.log('تم حفظ صورة المجموعة بنجاح.');
+                    }
+                } catch (error) {
+                    console.log('خطأ عند جلب صورة المجموعة:', error.message || error);
                 }
 
                 return await sock.sendMessage(groupJid, { text: `✅ تم حفظ النسخة: ${name}` }, { quoted: msg });
@@ -90,7 +102,14 @@ module.exports = {
 
                 const imgPath = path.join(baseDir, name, `${name}.jpg`);
                 if (fs.existsSync(imgPath)) {
-                    await sock.updateProfilePicture(groupJid, { url: imgPath });
+                    try {
+                        await sock.updateProfilePicture(groupJid, { url: imgPath });
+                        console.log('تم تحديث صورة المجموعة.');
+                    } catch (err) {
+                        console.log('خطأ عند تحديث صورة المجموعة:', err.message || err);
+                    }
+                } else {
+                    console.log('لا توجد صورة محفوظة للنسخة.');
                 }
 
                 return await sock.sendMessage(groupJid, { text: `✅ تم لصق النسخة "${name}" بنجاح.` }, { quoted: msg });
