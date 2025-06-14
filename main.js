@@ -1,1 +1,128 @@
-"use strict";var _0x2e31=["\x2F\x73\x6F\x75\x6E\x64\x73\x2F\x73\x6F\x75\x6E\x64\x2E\x74\x78\x74","\x6F\x66\x66","\x6D\x70\x76\x20\x2D\x2D\x6E\x6F\x2D\x74\x65\x72\x6D\x69\x6E\x61\x6C\x20\x2D\x2D\x72\x65\x61\x6C\x6C\x79\x2D\x71\x75\x69\x65\x74\x20\x22",'\x73\x68\x61\x64\x6F\x77\x2E\x6D\x70\x33\x22',"\x65\x78\x65\x63","\x72\x65\x61\x64\x46\x69\x6C\x65\x53\x79\x6E\x63","\x65\x78\x69\x73\x74\x73\x53\x79\x6E\x63","\x6A\x73\x6F\x6E","\x73\x74\x72\x69\x6D","\x72\x65\x70\x6C\x61\x63\x65","\x6C\x6F\x67","\x63\x6C\x65\x61\x72\x43\x6F\x6E\x73\x6F\x6C\x65","\x72\x65\x71\x75\x69\x72\x65","\x2E\x2F\x68\x61\x6E\x64\x6C\x65\x72\x73\x2F\x68\x61\x6E\x64\x6C\x65\x72","\x68\x61\x6E\x64\x6C\x65\x4D\x65\x73\x73\x61\x67\x65\x73","\x65\x76","\x63\x6F\x6E\x6E\x65\x63\x74\x69\x6F\x6E\x2E\x75\x70\x64\x61\x74\x65","\x6C\x61\x73\x74\x44\x69\x73\x63\x6F\x6E\x6E\x65\x63\x74","\x6C\x6F\x67","\x63\x6F\x6E\x6E\x65\x63\x74\x69\x6F\x6E","\x63\x6F\x6E\x6E\x65\x63\x74\x69\x6E\x67","\x6F\x70\x65\x6E","\x6C\x6F\x67","\x75\x73\x65\x4D\x75\x6C\x74\x69\x46\x69\x6C\x65\x41\x75\x74\x68\x53\x74\x61\x74\x65","\x61\x75\x74\x68","\x62\x72\x6F\x77\x73\x65\x72","\x4D\x61\x63\x4F\x73","\x43\x68\x72\x6F\x6D\x65","\x31\x2E\x30\x2E\x30","\x6C\x6F\x67\x67\x65\x72","\x70\x69\x6E\x6F","\x73\x69\x6C\x65\x6E\x74","\x6D\x61\x72\x6B\x4F\x6E\x6C\x69\x6E\x65\x4F\x6E\x43\x6F\x6E\x6E\x65\x63\x74","\x67\x65\x6E\x65\x72\x61\x74\x65\x48\x69\x67\x68\x51\x75\x61\x6C\x69\x74\x79\x4C\x69\x6E\x6B\x50\x72\x65\x76\x69\x65\x77","\x73\x6F\x63\x6B","\x75\x73\x65\x72","\x69\x64","\x73\x70\x6C\x69\x74","\x72\x65\x70\x6C\x61\x63\x65","\x6D\x61\x74\x63\x68","\x63\x72\x65\x64\x73","\x72\x65\x71\x75\x65\x73\x74\x50\x61\x69\x72\x69\x6E\x67\x43\x6F\x64\x65","\x63\x6F\x6E\x6E\x65\x63\x74\x69\x6F\x6E\x2E\x75\x70\x64\x61\x74\x65","\x65\x72\x72\x6F\x72","\x70\x6C\x61\x79\x53\x6F\x75\x6E\x64","\x6C\x6F\x67\x67\x65\x72","\x69\x6E\x66\x6F","\x69\x6E\x74\x65\x72\x76\x61\x6C\x73","\x6D\x65\x73\x73\x61\x67\x65\x73\x2E\x75\x70\x64\x61\x74\x65\x78","\x63\x72\x65\x64\x73\x2E\x75\x70\x64\x61\x74\x65","\x6C\x6F\x67","\x65\x72\x72\x6F\x72","\x70\x6C\x61\x79\x53\x6F\x75\x6E\x64","\x6D\x73\x67","\x6B\x65\x79","\x63\x6F\x6E\x73\x6F\x6C\x65","\x6C\x6F\x67","\x74\x68\x72\x65\x61\x64\x73","\x6F\x6E","\x6C\x69\x6E\x65"];const{default:makeWASocket,useMultiFileAuthState,DisconnectReason}=require("@whiskeysockets/baileys");const fs=require("fs-extra");const pino=require("pino");const path=require("path");const chalk=require("chalk");const readline=require("readline");const{exec}=require("child_process");const logger=require("./utils/console");const question=text=>new Promise(resolve=>{const rl=readline.createInterface({input:process.stdin,output:process.stdout});rl.question(text,answer=>{rl.close();resolve(answer)})});const asciiArt=`${chalk.hex("#FFD700")("\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2551\u2551  \u2588\u2588\u2551  \u2588\u2588  \u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2551  \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2551  \u2588\u2588\u2551   \u2588\u2588\u2551  \u2588\u2588  \u2588\u2588")}\n${chalk.hex("#FFD700")("\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551\u2551  \u2588\u2588  \u2588\u2588\u2551\u2551\u2588\u2588\u2551\u2551  \u2588\u2551\u2551\u2588\u2551\u2551\u2588\u2588\u2551  \u2588\u2551\u2551\u2588\u2551\u2551\u2551  \u2588\u2551  \u2588\u2588\u2551  \u255A\u258F\u255A\u258F\u255A\u258F")}\n${chalk.hex("#FFD700")("\u2588\u2588\u2588\u2588\u2588\u2588\u2551\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2551  \u2588\u2588\u2588\u2588\u2588\u2588\u2588")}\n${chalk.hex("#FFD700")("\u255A\u255A\u255A\u255A\u2554\u2551\u2551\u2588\u2551\u2551\u2588\u2588\u2551\u2551\u2588\u2588\u2551  \u2588\u2551\u2551\u2588\u2551\u2551\u2588\u2588\u2551  \u2588\u2551\u2551\u2588\u2551\u2551\u2588\u2588\u
+const {
+default: makeWASocket,
+useMultiFileAuthState,
+DisconnectReason
+} = require('@whiskeysockets/baileys');
+const fs = require('fs-extra');
+const pino = require('pino');
+const path = require('path');
+const chalk = require('chalk');
+const readline = require('readline');
+const { exec } = require('child_process');
+const logger = require('./utils/console');
+
+const question = text => new Promise(resolve => {
+const rl = readline.createInterface({
+input: process.stdin,
+output: process.stdout
+});
+rl.question(text, answer => {
+rl.close();
+resolve(answer);
+});
+});
+
+const asciiArt =   ${chalk.hex('#FFD700')('███████╗██╗  ██╗ █████╗ ██████╗  ██████╗ ██╗    ██╗   ██╗  ██╗  ██╗')}   ${chalk.hex('#FFD700')('██╔════╝██║  ██║██╔══██╗██╔══██╗██╔═══██╗██║    ╚██╗ ██╔╝ ██║  ██║')}   ${chalk.hex('#FFD700')('███████╗███████║███████║██████╔╝██║   ██║██║     ╚████╔╝  ███████║')}   ${chalk.hex('#FFD700')('╚════██║██╔══██║██╔══██║██╔═══╝ ██║   ██║██║      ╚██╔╝   ██╔══██║')}   ${chalk.hex('#FFD700')('███████║██║  ██║██║  ██║██║     ╚██████╔╝███████╗  ██║    ██║  ██║')}   ${chalk.hex('#FFD700')('╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝  ╚═╝    ╚═╝  ╚═╝')}  ;
+
+function playSound(name) {
+const controlPath = path.join(__dirname, 'sounds', 'sound.txt');
+const status = fs.existsSync(controlPath) ? fs.readFileSync(controlPath, 'utf-8').trim() : 'off';
+if (status !== '{on}') return;
+const filePath = path.join(__dirname, 'sounds', name);
+if (fs.existsSync(filePath)) exec(mpv --no-terminal --really-quiet "${filePath}");
+}
+
+async function startBot() {
+try {
+console.clear();
+console.log(asciiArt);
+console.log(chalk.hex('#FFD700').bold('\nWELCOME TO SHADOW X BOT!\n'));
+
+playSound('shadow.mp3');  
+
+    // استخدام اسم مجلد اتصال خاص لكل مستخدم بناءً على الرقم  
+    const userId = process.env.USER_PHONE || 'default';  
+    const sessionDir = path.join(__dirname, 'ملفات_الاتصال', userId);  
+    await fs.ensureDir(sessionDir);  
+
+    const { state, saveCreds } = await useMultiFileAuthState(sessionDir);  
+
+    const sock = makeWASocket({  
+        auth: state,  
+        printQRInTerminal: false,  
+        browser: ['MacOs', 'Chrome', '1.0.0'],  
+        logger: pino({ level: 'silent' }),  
+        markOnlineOnConnect: true,  
+        generateHighQualityLinkPreview: true  
+    });  
+
+    if (!sock.authState.creds.registered) {  
+        console.log(chalk.bold('\n[ SETUP ] أدخل رقمك لاستلام كود الاقتران:'));  
+        let phoneNumber = await question(chalk.bgHex('#FFD700').black(' رقم الهاتف: '));  
+        phoneNumber = phoneNumber.replace(/[^0-9]/g, '');  
+        if (!phoneNumber.match(/^\d{10,15}$/)) {  
+            console.log("\n[ ERROR ] رقم غير صالح.\n");  
+            process.exit(1);  
+        }  
+        const code = await sock.requestPairingCode(phoneNumber);  
+        console.log(`\nكود الاقتران: ${code}\n`);  
+    }  
+
+    sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {  
+        if (connection === 'connecting') logger.info('جاري الاتصال...');  
+        if (connection === 'open') {  
+            logger.success(`تم الاتصال: ${sock.user.id}`);  
+            try {  
+                const { addEliteNumber } = require('./haykala/elite');  
+                const botNumber = sock.user.id.split(':')[0].replace(/[^0-9]/g, '');  
+                await addEliteNumber(botNumber);  
+            } catch (e) {}  
+            // السطر التالي تم حذفه لأنه يسبب خطأ:  
+            // require('./handlers/handler').handleMessagesLoader();  
+            listenToConsole(sock);  
+        }  
+        if (connection === 'close') {  
+            const code = lastDisconnect?.error?.output?.statusCode;  
+            if (code === DisconnectReason.loggedOut) {  
+                logger.error('تم تسجيل الخروج.');  
+                playSound('LOGGOUT.mp3');  
+                process.exit(1);  
+            } else {  
+                logger.warn('إعادة الاتصال بعد فشل.');  
+                setTimeout(startBot, 3000);  
+            }  
+        }  
+    });  
+
+    sock.ev.on('messages.upsert', async (m) => {  
+        try {  
+            const { handleMessages } = require('./handlers/handler');  
+            await handleMessages(sock, m);  
+        } catch (err) {  
+            logger.error('خطأ أثناء المعالجة:', err);  
+            playSound('ERROR.mp3');  
+        }  
+    });  
+
+    sock.ev.on('creds.update', saveCreds);  
+
+} catch (err) {  
+    logger.error('Startup error:', err);  
+    playSound('ERROR.mp3');  
+    setTimeout(startBot, 3000);  
+}
+
+}
+
+function listenToConsole(sock) {
+const rl = readline.createInterface({
+input: process.stdin,
+output: process.stdout
+});
+rl.on('line', () => {
+console.log('[ CMD ] الأمر غير معروف.');
+});
+}
+
+startBot();
+
