@@ -4,7 +4,8 @@ const {
     removeEliteNumber,
     getEliteList
 } = require('../haykala/user_elite_manager');
-const { extractPureNumber } = require('../haykala/elite'); // فقط لاستخراج الرقم
+
+const { extractPureNumber } = require('../haykala/elite');
 
 module.exports = {
     command: 'نخبة',
