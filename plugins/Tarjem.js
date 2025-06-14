@@ -9,7 +9,7 @@ module.exports = {
   command: 'ترجم',
   description: 'ترجمة نص لأي لغة - أو عرض قائمة رموز اللغات المتاحة',
   usage: '.ترجم [رمز اللغة] [النص] أو .ترجم لغات',
-  category: 'ذكاء',
+  category: 'أدوات',
 
   async execute(sock, msg) {
     const jid = msg.key.remoteJid;
