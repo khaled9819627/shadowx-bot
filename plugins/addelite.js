@@ -1,9 +1,10 @@
 const {
-    loadEliteNumbers,
+    isElite,
     addEliteNumber,
     removeEliteNumber,
-    extractPureNumber
-} = require('../haykala/elite');
+    getEliteList
+} = require('../haykala/user_elite_manager');
+const { extractPureNumber } = require('../haykala/elite'); // فقط لاستخراج الرقم
 
 module.exports = {
     command: 'نخبة',
@@ -25,7 +26,7 @@ module.exports = {
         }
 
         if (action === 'عرض') {
-            const list = loadEliteNumbers(senderNumber);
+            const list = getEliteList(senderNumber);
             const view = list.map((n, i) => `${i + 1}. ${n}`).join('\n');
             return sock.sendMessage(msg.key.remoteJid, {
                 text: `👑 قائمة نخبتك:\n\n${view || 'لا يوجد أرقام بعد.'}`
@@ -51,7 +52,7 @@ module.exports = {
             targetNumber = extractPureNumber(targetJid);
         }
 
-        const currentList = loadEliteNumbers(senderNumber);
+        const currentList = getEliteList(senderNumber);
 
         if (action === 'اضف') {
             if (currentList.includes(targetNumber)) {
