@@ -1,90 +1,53 @@
-const {
-    eliteNumbers,
-    isElite,
-    addEliteNumber,
-    removeEliteNumber,
-    extractPureNumber
-} = require('../haykala/elite');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
-    command: 'نخبة',
-    description: 'إضافة أو إزالة رقم من قائمة النخبة أو عرضها (للنخبة فقط)',
-    usage: '.نخبة اضف/ازل/عرض + منشن أو رد أو رقم',
-    category: 'zarf',    
+  name: 'نخبة',
+  alias: ['addelite', 'elite'],
+  category: 'المطور',
+  desc: 'إدارة قائمة النخبة الخاصة بك',
+  use: '[اضف +رقم] أو [حذف +رقم] أو [عرض]',
+  async exec(m, sock, args, { text, sender, reply }) {
+    // 📁 تحديد المسار للملف الخاص بالمستخدم
+    const getElitePath = () => {
+      const dir = path.join(__dirname, '..', 'shadowx_data');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      const file = `elite_${sender.replace(/[@+]/g, '')}.json`;
+      return path.join(dir, file);
+    };
 
-    async execute(sock, msg) {
-        const senderJid = msg.key.participant || msg.participant || msg.key.remoteJid;
-        const senderNumber = extractPureNumber(senderJid);
+    const filePath = getElitePath();
 
-        if (!isElite(senderNumber)) {
-            return sock.sendMessage(msg.key.remoteJid, {
-                text: '❌ هذا الأمر مخصص للنخبة فقط.'
-            }, { quoted: msg });
-        }
+    // 📄 تحميل القائمة
+    const loadList = () => fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : [];
+    const saveList = (list) => fs.writeFileSync(filePath, JSON.stringify(list, null, 2));
 
-        const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
-        const parts = text.trim().split(/\s+/);
-        const action = parts[1];
+    let list = loadList();
 
-        if (!action || !['اضف', 'ازل', 'عرض'].includes(action)) {
-            return sock.sendMessage(msg.key.remoteJid, {
-                text: '❌ استخدم: .نخبة اضف/ازل مع منشن أو رد أو رقم، أو .نخبة عرض.'
-            }, { quoted: msg });
-        }
+    if (!text) return reply(`❗ استخدم:\n.nخبة اضف +123456789\n.nخبة حذف +123456789\n.nخبة عرض`);
 
-        if (action === 'عرض') {
-            const list = eliteNumbers.map((n, i) => `${i + 1}. ${n}`).join('\n');
-            return sock.sendMessage(msg.key.remoteJid, {
-                text: `قائمة أرقام النخبة:\n\n${list || 'لا يوجد أرقام بعد.'}`
-            }, { quoted: msg });
-        }
-
-        let targetNumber;
-
-        // رقم مباشر
-        if (parts[2] && /^\d{5,}$/.test(parts[2])) {
-            targetNumber = extractPureNumber(parts[2]);
-        }
-
-        // أو من منشن / رد
-        if (!targetNumber) {
-            const targetJid =
-                msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] ||
-                msg.message?.extendedTextMessage?.contextInfo?.participant;
-
-            if (!targetJid) {
-                return sock.sendMessage(msg.key.remoteJid, {
-                    text: '❌ يجب منشن أو الرد على الشخص المستهدف أو إدخال رقم صحيح.'
-                }, { quoted: msg });
-            }
-
-            targetNumber = extractPureNumber(targetJid);
-        }
-
-        if (action === 'اضف') {
-            if (eliteNumbers.includes(targetNumber)) {
-                return sock.sendMessage(msg.key.remoteJid, {
-                    text: `⚠️ الرقم ${targetNumber} موجود بالفعل في قائمة النخبة.`
-                }, { quoted: msg });
-            }
-
-            addEliteNumber(targetNumber);
-            return sock.sendMessage(msg.key.remoteJid, {
-                text: `✅ تم إضافة الرقم ${targetNumber} إلى النخبة.`
-            }, { quoted: msg });
-        }
-
-        if (action === 'ازل') {
-            if (!eliteNumbers.includes(targetNumber)) {
-                return sock.sendMessage(msg.key.remoteJid, {
-                    text: `⚠️ الرقم ${targetNumber} غير موجود في قائمة النخبة.`
-                }, { quoted: msg });
-            }
-
-            removeEliteNumber(targetNumber);
-            return sock.sendMessage(msg.key.remoteJid, {
-                text: `✅ تم إزالة الرقم ${targetNumber} من النخبة.`
-            }, { quoted: msg });
-        }
+    if (text.startsWith('اضف')) {
+      let number = text.split(' ')[1];
+      if (!number) return reply('❗ اكتب رقم بعد "اضف".');
+      if (list.includes(number)) return reply('⚠️ الرقم موجود بالفعل في النخبة.');
+      list.push(number);
+      saveList(list);
+      return reply(`✅ تمت إضافة ${number} إلى النخبة.`);
     }
+
+    if (text.startsWith('حذف')) {
+      let number = text.split(' ')[1];
+      if (!number) return reply('❗ اكتب رقم بعد "حذف".');
+      if (!list.includes(number)) return reply('⚠️ الرقم غير موجود في النخبة.');
+      list = list.filter((n) => n !== number);
+      saveList(list);
+      return reply(`✅ تم حذف ${number} من النخبة.`);
+    }
+
+    if (text === 'عرض') {
+      return reply(list.length ? `🔰 قائمة النخبة:\n${list.join('\n')}` : '🚫 لا يوجد نخبة بعد.');
+    }
+
+    return reply('❗ أمر غير مفهوم، استخدم: اضف، حذف، عرض');
+  }
 };
