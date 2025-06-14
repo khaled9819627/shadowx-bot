@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// مسار المجلد اللي فيه ملفات النخبة لكل مستخدم
 const dataFolder = path.join(__dirname, 'user_elite');
 
 if (!fs.existsSync(dataFolder)) {
