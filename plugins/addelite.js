@@ -7,8 +7,10 @@ module.exports = {
   category: 'المطور',
   desc: 'إدارة قائمة النخبة الخاصة بك',
   use: '[اضف +رقم] أو [حذف +رقم] أو [عرض]',
-  async exec(m, sock, args, { text, sender, reply }) {
-    // 📁 تحديد المسار للملف الخاص بالمستخدم
+  
+  // الدالة التنفيذية المعدلة إلى execute
+  async execute(m, sock, args, { text, sender, reply }) {
+    // تحديد مسار ملف النخبة الخاص بالمرسل
     const getElitePath = () => {
       const dir = path.join(__dirname, '..', 'shadowx_data');
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -18,13 +20,15 @@ module.exports = {
 
     const filePath = getElitePath();
 
-    // 📄 تحميل القائمة
+    // تحميل قائمة النخبة من الملف
     const loadList = () => fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : [];
+    // حفظ القائمة بعد التعديل
     const saveList = (list) => fs.writeFileSync(filePath, JSON.stringify(list, null, 2));
 
     let list = loadList();
 
-    if (!text) return reply(`❗ استخدم:\n.nخبة اضف +123456789\n.nخبة حذف +123456789\n.nخبة عرض`);
+    if (!text) 
+      return reply(`❗ استخدم:\n.nخبة اضف +123456789\n.nخبة حذف +123456789\n.nخبة عرض`);
 
     if (text.startsWith('اضف')) {
       let number = text.split(' ')[1];
