@@ -1,6 +1,6 @@
 const { extractPureNumber } = require('../haykala/elite');
 const commands = {
-    نخبة: require('../commands/addelite'),
+    نخبة: require('../plugins/addelite'),
     // أضف هنا باقي أوامرك
 };
 
