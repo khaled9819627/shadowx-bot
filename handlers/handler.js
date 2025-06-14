@@ -1,15 +1,7 @@
-const {
-    isElite,
-    addEliteNumber,
-    removeEliteNumber,
-    getEliteList
-} = require('../haykala/user_elite_manager');
-
 const { extractPureNumber } = require('../haykala/elite');
-
 const commands = {
-    نخبة: require('../commands/addelite'), // مسار ملف الأمر نخبة
-    // أضف هنا بقية الأوامر حسب تنظيمك
+    نخبة: require('../commands/addelite'),
+    // أضف هنا باقي أوامرك
 };
 
 async function handleMessages(sock, msg) {
@@ -17,22 +9,19 @@ async function handleMessages(sock, msg) {
         const senderJid = msg.key.participant || msg.participant || msg.key.remoteJid;
         const senderNumber = extractPureNumber(senderJid);
 
-        const messageText = 
-            msg.message?.conversation || 
-            msg.message?.extendedTextMessage?.text || 
+        const messageText =
+            msg.message?.conversation ||
+            msg.message?.extendedTextMessage?.text ||
             '';
 
-        if (!messageText.startsWith('.')) return; // فقط الأوامر تبدأ بنقطة
+        if (!messageText.startsWith('.')) return;
 
         const parts = messageText.trim().split(/\s+/);
         const commandName = parts[0].slice(1); // حذف النقطة
 
         const command = commands[commandName];
-        if (!command) return; // أمر غير معروف
+        if (!command) return;
 
-        // هنا لو تريد حماية أو صلاحيات أو شيء
-
-        // استدعاء تنفيذ الأمر
         await command.execute(sock, msg);
 
     } catch (err) {
