@@ -1,6 +1,5 @@
 const {
-    eliteNumbers,
-    isElite,
+    loadEliteNumbers,
     addEliteNumber,
     removeEliteNumber,
     extractPureNumber
@@ -8,20 +7,13 @@ const {
 
 module.exports = {
     command: 'نخبة',
-    description: 'إضافة أو إزالة رقم من قائمة النخبة أو عرضها (للنخبة فقط)',
+    description: 'إضافة أو إزالة رقم من نخبة خاصة بك أو عرضها',
     usage: '.نخبة اضف/ازل/عرض + منشن أو رد أو رقم',
-    category: 'زرف',    
+    category: 'زرف',
 
     async execute(sock, msg) {
         const senderJid = msg.key.participant || msg.participant || msg.key.remoteJid;
         const senderNumber = extractPureNumber(senderJid);
-
-        if (!isElite(senderNumber)) {
-            return sock.sendMessage(msg.key.remoteJid, {
-                text: '❌ هذا الأمر مخصص للنخبة فقط.'
-            }, { quoted: msg });
-        }
-
         const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
         const parts = text.trim().split(/\s+/);
         const action = parts[1];
@@ -33,20 +25,18 @@ module.exports = {
         }
 
         if (action === 'عرض') {
-            const list = eliteNumbers.map((n, i) => `${i + 1}. ${n}`).join('\n');
+            const list = loadEliteNumbers(senderNumber);
+            const view = list.map((n, i) => `${i + 1}. ${n}`).join('\n');
             return sock.sendMessage(msg.key.remoteJid, {
-                text: `قائمة أرقام النخبة:\n\n${list || 'لا يوجد أرقام بعد.'}`
+                text: `👑 قائمة نخبتك:\n\n${view || 'لا يوجد أرقام بعد.'}`
             }, { quoted: msg });
         }
 
         let targetNumber;
-
-        // رقم مباشر
         if (parts[2] && /^\d{5,}$/.test(parts[2])) {
             targetNumber = extractPureNumber(parts[2]);
         }
 
-        // أو من منشن / رد
         if (!targetNumber) {
             const targetJid =
                 msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] ||
@@ -61,29 +51,31 @@ module.exports = {
             targetNumber = extractPureNumber(targetJid);
         }
 
+        const currentList = loadEliteNumbers(senderNumber);
+
         if (action === 'اضف') {
-            if (eliteNumbers.includes(targetNumber)) {
+            if (currentList.includes(targetNumber)) {
                 return sock.sendMessage(msg.key.remoteJid, {
-                    text: `⚠️ الرقم ${targetNumber} موجود بالفعل في قائمة النخبة.`
+                    text: `⚠️ الرقم ${targetNumber} موجود بالفعل في نخبتك.`
                 }, { quoted: msg });
             }
 
-            addEliteNumber(targetNumber);
+            addEliteNumber(senderNumber, targetNumber);
             return sock.sendMessage(msg.key.remoteJid, {
-                text: `✅ تم إضافة الرقم ${targetNumber} إلى النخبة.`
+                text: `✅ تم إضافة ${targetNumber} إلى نخبتك.`
             }, { quoted: msg });
         }
 
         if (action === 'ازل') {
-            if (!eliteNumbers.includes(targetNumber)) {
+            if (!currentList.includes(targetNumber)) {
                 return sock.sendMessage(msg.key.remoteJid, {
-                    text: `⚠️ الرقم ${targetNumber} غير موجود في قائمة النخبة.`
+                    text: `⚠️ الرقم ${targetNumber} غير موجود في نخبتك.`
                 }, { quoted: msg });
             }
 
-            removeEliteNumber(targetNumber);
+            removeEliteNumber(senderNumber, targetNumber);
             return sock.sendMessage(msg.key.remoteJid, {
-                text: `✅ تم إزالة الرقم ${targetNumber} من النخبة.`
+                text: `✅ تم إزالة ${targetNumber} من نخبتك.`
             }, { quoted: msg });
         }
     }
