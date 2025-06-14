@@ -1,43 +1,43 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-export let eliteNumbers = [
-  '963968552137',
-  '20930080317677'
-];
+const basePath = path.join(__dirname, 'user_elite');
 
-export const extractPureNumber = (jid) => {
-  return jid.toString().replace(/[@:].*/g, '');
-};
+function getFilePath(number) {
+    return path.join(basePath, `${number}.json`);
+}
 
-export const isElite = (number) => {
-  if (!number) return false;
-  const pureNumber = extractPureNumber(number);
-  const isMatch = eliteNumbers.includes(pureNumber);
-  console.log(`Elite check: ${number} -> ${pureNumber} -> ${isMatch}`);
-  return isMatch;
-};
+function loadEliteNumbers(userNumber) {
+    const filePath = getFilePath(userNumber);
+    if (!fs.existsSync(filePath)) return [];
+    return JSON.parse(fs.readFileSync(filePath));
+}
 
-export const updateEliteNumbers = () => {
-  const elitePath = path.join(process.cwd(), 'haykala', 'elite.js');
-  const numbersStr = eliteNumbers.map(num => `'${num}'`).join(',\n  ');
-  const newContent = `import fs from 'fs';\nimport path from 'path';\n\nexport let eliteNumbers = [\n  ${numbersStr}\n];\n\nexport const extractPureNumber = (jid) => {\n  return jid.toString().replace(/[@:].*/g, '');\n};\n\nexport const isElite = (number) => {\n  if (!number) return false;\n  const pureNumber = extractPureNumber(number);\n  const isMatch = eliteNumbers.includes(pureNumber);\n  console.log(\`Elite check: \${number} -> \${pureNumber} -> \${isMatch}\`);\n  return isMatch;\n};\n\nexport const updateEliteNumbers = ${updateEliteNumbers.toString()};\n\nexport const addEliteNumber = ${addEliteNumber.toString()};\n\nexport const removeEliteNumber = ${removeEliteNumber.toString()};\n`;
+function saveEliteNumbers(userNumber, numbers) {
+    const filePath = getFilePath(userNumber);
+    fs.writeFileSync(filePath, JSON.stringify(numbers, null, 2));
+}
 
-  fs.writeFileSync(elitePath, newContent);
-  console.log('✅ تم تحديث قائمة النخبة تلقائيًا.');
-};
+function addEliteNumber(userNumber, numberToAdd) {
+    const list = loadEliteNumbers(userNumber);
+    if (!list.includes(numberToAdd)) {
+        list.push(numberToAdd);
+        saveEliteNumbers(userNumber, list);
+    }
+}
 
-export const addEliteNumber = (number) => {
-  if (!eliteNumbers.includes(number)) {
-    eliteNumbers.push(number);
-    updateEliteNumbers();
-  }
-};
+function removeEliteNumber(userNumber, numberToRemove) {
+    const list = loadEliteNumbers(userNumber).filter(n => n !== numberToRemove);
+    saveEliteNumbers(userNumber, list);
+}
 
-export const removeEliteNumber = (number) => {
-  const index = eliteNumbers.indexOf(number);
-  if (index > -1) {
-    eliteNumbers.splice(index, 1);
-    updateEliteNumbers();
-  }
+function extractPureNumber(input) {
+    return input.replace(/\D/g, '').replace(/^0+/, '');
+}
+
+module.exports = {
+    loadEliteNumbers,
+    addEliteNumber,
+    removeEliteNumber,
+    extractPureNumber
 };
