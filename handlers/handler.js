@@ -92,10 +92,9 @@ async function handleMessages(sock, { messages }) {
             logger.warn('تعذر قراءة ملف mode.txt:', err.message);
         }
 
-        if (eliteMode && !isElite(senderNumber)) {
-            logger.warn(`تجاهل من غير النخبة: ${senderNumber}`);
-            return;
-        }
+        if (!isElite(senderNumber, senderNumber)) {
+  return sock.sendMessage(msg.key.remoteJid, { text: '❌ مخصص للنخبة فقط' }, { quoted: msg });
+}
 
         const plugins = await loadPlugins();
         const handler = plugins[commandWithoutPrefix];
