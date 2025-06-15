@@ -1,62 +1,56 @@
 const config = require('../config');
 const logger = require('../utils/console');
 const { loadPlugins } = require('./plugins');
-const crypto = require('crypto');
+
+let pluginsCache = null;
 
 async function handleMessages(sock, { messages }) {
-    if (!messages || !messages[0]) return;
-    
-    const msg = messages[0];
-    
-    try {
-        const messageText = msg.message?.conversation ||
-                            msg.message?.extendedTextMessage?.text ||
-                            msg.message?.imageMessage?.caption ||
-                            msg.message?.videoMessage?.caption || '';
+    const msg = messages?.[0];
+    if (!msg) return;
 
-        msg.isGroup = msg.key.remoteJid.endsWith('@g.us');
-        msg.sender = msg.key.participant || msg.key.remoteJid;
-        msg.chat = msg.key.remoteJid;
-        
-        msg.reply = async (text) => {
-            try {
-                await sock.sendMessage(msg.chat, { text }, { quoted: msg });
-            } catch (error) {
-                logger.error('خطأ في إرسال الرد:', error);
-            }
-        };
+    const msgText = msg.message?.conversation ||
+                    msg.message?.extendedTextMessage?.text ||
+                    msg.message?.imageMessage?.caption ||
+                    msg.message?.videoMessage?.caption || '';
 
-        if (!messageText.startsWith(config.prefix)) return;
+    if (!msgText || !msgText.startsWith(config.prefix)) return;
 
-        const args = messageText.slice(config.prefix.length).trim().split(/\s+/);
-        const command = args.shift()?.toLowerCase();
-        
-        const plugins = await loadPlugins();
-        const plugin = plugins[command];
+    // معلومات أساسية
+    msg.isGroup = msg.key.remoteJid.endsWith('@g.us');
+    msg.sender = msg.key.participant || msg.key.remoteJid;
+    msg.chat = msg.key.remoteJid;
 
-        if (plugin) {
-            logger.info(`تنفيذ الأمر: ${command} من ${msg.sender}`);
-            try {
-                await plugin.execute(sock, msg, args);
-            } catch (error) {
-                logger.error(`خطأ في تنفيذ الأمر ${command}:`, error);
-                await sock.sendMessage(msg.chat, { 
-                    text: config.messages.error 
-                }, { quoted: msg });
-            }
-        } else {
-            logger.warn(`أمر غير معروف: ${command}`);
-        }
-
-    } catch (error) {
-        logger.error('خطأ في معالجة الرسالة:', error);
+    // دالة reply جاهزة
+    msg.reply = async (text) => {
         try {
-            await sock.sendMessage(msg.key.remoteJid, {
-                text: config.messages.error
-            });
-        } catch (sendError) {
-            logger.error('فشل في إرسال رسالة الخطأ:', sendError);
+            await sock.sendMessage(msg.chat, { text }, { quoted: msg });
+        } catch (err) {
+            logger.error('✗ فشل في إرسال الرد:', err.message);
         }
+    };
+
+    const args = msgText.slice(config.prefix.length).trim().split(/\s+/);
+    const command = args.shift()?.toLowerCase();
+    if (!command) return;
+
+    try {
+        // تحميل أوامر البوت مرة واحدة
+        if (!pluginsCache) pluginsCache = await loadPlugins();
+        const plugin = pluginsCache[command];
+
+        if (!plugin || typeof plugin.execute !== 'function') {
+            logger.warn(`❌ أمر غير معروف: ${command}`);
+            return;
+        }
+
+        logger.info(`📥 أمر: ${command} | من: ${msg.sender}`);
+
+        await plugin.execute(sock, msg, args);
+        logger.success(`✅ تم تنفيذ الأمر: ${command}`);
+        
+    } catch (error) {
+        logger.error(`✗ خطأ أثناء تنفيذ ${command}: ${error.message}`);
+        msg.reply(config.messages?.error || 'حدث خطأ أثناء التنفيذ.');
     }
 }
 
