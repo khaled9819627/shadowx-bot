@@ -14,5 +14,14 @@ module.exports = {
   },
 
   // ✅ تحديد المجموعات المسموح بها (أتركها [] للسماح للجميع)
-  allowedGroups: []
+  allowedGroups: [],
+
+  // ✅ ألوان لرسائل الكونسول
+  colors: {
+    reset: "\x1b[0m",
+    info: "\x1b[36m",    // أزرق سماوي
+    success: "\x1b[32m", // أخضر
+    warn: "\x1b[33m",    // أصفر
+    error: "\x1b[31m"    // أحمر
+  }
 };
