@@ -172,3 +172,16 @@ async function startBot() {
     });
 
     sock.ev.on(_0x47d6('0x23'), async (m) => {
+      try {
+        require(_0x47d6('0x20')).handleMessages(sock, m);
+      } catch (e) {
+        logger.error('Error while handling message:', e);
+      }
+    });
+
+  } catch (e) {
+    logger.error('Startup error:', e);
+  }
+}
+
+startBot();
