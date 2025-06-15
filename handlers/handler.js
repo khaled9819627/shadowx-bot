@@ -87,9 +87,11 @@ async function handleMessages(sock, { messages }) {
             logger.warn('تعذر قراءة ملف mode.txt:', err.message);
         }
 
-        if (eliteMode && !isElite(senderNumber)) {
-            logger.warn(`تجاهل من غير النخبة: ${senderNumber}`);
-            return;
+        const botNumber = sock.user.id.split(':')[0].replace(/\D/g, '');
+
+        if (eliteMode && !isElite(senderNumber, botNumber)) {
+        logger.warn(`❌ تم حظر الأمر لأن ${senderNumber} ليس من نخبة البوت`);
+        return;
         }
 
         const plugins = await loadPlugins();
