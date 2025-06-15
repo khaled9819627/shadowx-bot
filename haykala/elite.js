@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const config = require('../config');
 
 function getEliteFilePath(ownerNumber) {
   const dir = path.join(__dirname, '..', 'shadowx_data');
@@ -8,22 +9,65 @@ function getEliteFilePath(ownerNumber) {
   return path.join(dir, file);
 }
 
+function loadEliteList(ownerNumber) {
+  const filePath = getEliteFilePath(ownerNumber);
+  if (!fs.existsSync(filePath)) return [];
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch {
+    return [];
+  }
+}
+
+function saveEliteList(ownerNumber, list) {
+  const filePath = getEliteFilePath(ownerNumber);
+  fs.writeFileSync(filePath, JSON.stringify(list, null, 2));
+}
+
 function isElite(userNumber, ownerNumber) {
   try {
-    // المطور يعتبر نخبة دائمًا
-    const config = require('../config');
     if (config.owners.includes(userNumber)) return true;
 
-    const filePath = getEliteFilePath(ownerNumber);
-    if (!fs.existsSync(filePath)) return false;
-
-    const list = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const list = loadEliteList(ownerNumber);
     return list.includes(userNumber);
   } catch {
     return false;
   }
 }
 
+function addEliteNumber(ownerNumber, newNumber) {
+  try {
+    const list = loadEliteList(ownerNumber);
+    if (list.includes(newNumber)) return false; // موجود مسبقاً
+    list.push(newNumber);
+    saveEliteList(ownerNumber, list);
+    return true;
+  } catch (e) {
+    console.error('خطأ في إضافة رقم للنخبة:', e);
+    return false;
+  }
+}
+
+function removeEliteNumber(ownerNumber, numberToRemove) {
+  try {
+    let list = loadEliteList(ownerNumber);
+    if (!list.includes(numberToRemove)) return false; // غير موجود
+    list = list.filter(n => n !== numberToRemove);
+    saveEliteList(ownerNumber, list);
+    return true;
+  } catch (e) {
+    console.error('خطأ في حذف رقم من النخبة:', e);
+    return false;
+  }
+}
+
+function getEliteList(ownerNumber) {
+  return loadEliteList(ownerNumber);
+}
+
 module.exports = {
-  isElite
+  isElite,
+  addEliteNumber,
+  removeEliteNumber,
+  getEliteList,
 };
