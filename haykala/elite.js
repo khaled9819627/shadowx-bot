@@ -1,74 +1,46 @@
-// elite.js
-const fs = require('fs');
-const path = require('path');
-const config = require('../config');
+import fs from 'fs';
+import path from 'path';
 
-function getEliteFilePath(ownerNumber) {
-  const dir = path.join(__dirname, '..', 'shadowx_data');
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const file = `elite_${ownerNumber.replace(/[@+]/g, '')}.json`;
-  return path.join(dir, file);
-}
+export let eliteNumbers = [
+  '963968552137',
+  '20930080317677',
+  '963968552137',
+  '254176181358625',
+  '240707533041851'
+];
 
-function loadEliteList(ownerNumber) {
-  const filePath = getEliteFilePath(ownerNumber);
-  if (!fs.existsSync(filePath)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch {
-    return [];
+export const extractPureNumber = (jid) => {
+  return jid.toString().replace(/[@:].*/g, '');
+};
+
+export const isElite = (number) => {
+  if (!number) return false;
+  const pureNumber = extractPureNumber(number);
+  const isMatch = eliteNumbers.includes(pureNumber);
+  console.log(`Elite check: ${number} -> ${pureNumber} -> ${isMatch}`);
+  return isMatch;
+};
+
+export const updateEliteNumbers = () => {
+  const elitePath = path.join(process.cwd(), 'haykala', 'elite.js');
+  const numbersStr = eliteNumbers.map(num => `'${num}'`).join(',\n  ');
+  const newContent = `import fs from 'fs';\nimport path from 'path';\n\nexport let eliteNumbers = [\n  ${numbersStr}\n];\n\nexport const extractPureNumber = (jid) => {\n  return jid.toString().replace(/[@:].*/g, '');\n};\n\nexport const isElite = (number) => {\n  if (!number) return false;\n  const pureNumber = extractPureNumber(number);\n  const isMatch = eliteNumbers.includes(pureNumber);\n  console.log(\`Elite check: \${number} -> \${pureNumber} -> \${isMatch}\`);\n  return isMatch;\n};\n\nexport const updateEliteNumbers = ${updateEliteNumbers.toString()};\n\nexport const addEliteNumber = ${addEliteNumber.toString()};\n\nexport const removeEliteNumber = ${removeEliteNumber.toString()};\n`;
+
+  fs.writeFileSync(elitePath, newContent);
+  console.log('✅ تم تحديث قائمة النخبة تلقائيًا.');
+};
+
+export const addEliteNumber = (number) => {
+  if (!eliteNumbers.includes(number)) {
+    eliteNumbers.push(number);
+    updateEliteNumbers();
   }
-}
+};
 
-function saveEliteList(ownerNumber, list) {
-  const filePath = getEliteFilePath(ownerNumber);
-  fs.writeFileSync(filePath, JSON.stringify(list, null, 2));
-}
-
-function isElite(userNumber, ownerNumber) {
-  try {
-    if (config.owners.includes(userNumber)) return true;
-
-    const list = loadEliteList(ownerNumber);
-    return list.includes(userNumber);
-  } catch {
-    return false;
+export const removeEliteNumber = (number) => {
+  const index = eliteNumbers.indexOf(number);
+  if (index > -1) {
+    eliteNumbers.splice(index, 1);
+    updateEliteNumbers();
   }
-}
-
-function addEliteNumber(ownerNumber, newNumber) {
-  try {
-    const list = loadEliteList(ownerNumber);
-    if (list.includes(newNumber)) return false;
-    list.push(newNumber);
-    saveEliteList(ownerNumber, list);
-    return true;
-  } catch (e) {
-    console.error('Error adding elite number:', e);
-    return false;
-  }
-}
-
-function removeEliteNumber(ownerNumber, numberToRemove) {
-  try {
-    let list = loadEliteList(ownerNumber);
-    if (!list.includes(numberToRemove)) return false;
-    list = list.filter(n => n !== numberToRemove);
-    saveEliteList(ownerNumber, list);
-    return true;
-  } catch (e) {
-    console.error('Error removing elite number:', e);
-    return false;
-  }
-}
-
-function getEliteList(ownerNumber) {
-  return loadEliteList(ownerNumber);
-}
-
-module.exports = {
-  isElite,
-  addEliteNumber,
-  removeEliteNumber,
-  getEliteList,
 };
