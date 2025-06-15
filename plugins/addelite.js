@@ -10,7 +10,7 @@ module.exports = {
     command: 'نخبة',
     description: 'إضافة أو إزالة رقم من قائمة النخبة أو عرضها (للنخبة فقط)',
     usage: '.نخبة اضف/ازل/عرض + منشن أو رد أو رقم',
-    category: 'zarf',    
+    category: 'زرف',    
 
     async execute(sock, msg) {
         const senderJid = msg.key.participant || msg.participant || msg.key.remoteJid;
