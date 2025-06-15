@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
-  command: 'نخبة',
+  command: 'addelite',
   desc: 'إدارة قائمة النخبة الخاصة بك',
   usage: '[اضف +رقم] أو [حذف +رقم] أو [عرض]',
   
