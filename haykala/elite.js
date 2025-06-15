@@ -1,3 +1,4 @@
+// elite.js
 const fs = require('fs');
 const path = require('path');
 const config = require('../config');
@@ -38,12 +39,12 @@ function isElite(userNumber, ownerNumber) {
 function addEliteNumber(ownerNumber, newNumber) {
   try {
     const list = loadEliteList(ownerNumber);
-    if (list.includes(newNumber)) return false; // موجود مسبقاً
+    if (list.includes(newNumber)) return false;
     list.push(newNumber);
     saveEliteList(ownerNumber, list);
     return true;
   } catch (e) {
-    console.error('خطأ في إضافة رقم للنخبة:', e);
+    console.error('Error adding elite number:', e);
     return false;
   }
 }
@@ -51,12 +52,12 @@ function addEliteNumber(ownerNumber, newNumber) {
 function removeEliteNumber(ownerNumber, numberToRemove) {
   try {
     let list = loadEliteList(ownerNumber);
-    if (!list.includes(numberToRemove)) return false; // غير موجود
+    if (!list.includes(numberToRemove)) return false;
     list = list.filter(n => n !== numberToRemove);
     saveEliteList(ownerNumber, list);
     return true;
   } catch (e) {
-    console.error('خطأ في حذف رقم من النخبة:', e);
+    console.error('Error removing elite number:', e);
     return false;
   }
 }
