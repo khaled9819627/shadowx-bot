@@ -1,48 +1,29 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-export let eliteNumbers = [
-  '963968552137',
-  '20930080317677',
-  '255753021563050',
-  '58313324675215',
-  '231374636195849',
-  '254176181358625',
-  '240707533041851'
-];
+function getEliteFilePath(ownerNumber) {
+  const dir = path.join(__dirname, '..', 'shadowx_data');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const file = `elite_${ownerNumber.replace(/[@+]/g, '')}.json`;
+  return path.join(dir, file);
+}
 
-export const extractPureNumber = (jid) => {
-  return jid.toString().replace(/[@:].*/g, '');
-};
+function isElite(userNumber, ownerNumber) {
+  try {
+    // المطور يعتبر نخبة دائمًا
+    const config = require('../config');
+    if (config.owners.includes(userNumber)) return true;
 
-export const isElite = (number) => {
-  if (!number) return false;
-  const pureNumber = extractPureNumber(number);
-  const isMatch = eliteNumbers.includes(pureNumber);
-  console.log(`Elite check: ${number} -> ${pureNumber} -> ${isMatch}`);
-  return isMatch;
-};
+    const filePath = getEliteFilePath(ownerNumber);
+    if (!fs.existsSync(filePath)) return false;
 
-export const updateEliteNumbers = () => {
-  const elitePath = path.join(process.cwd(), 'haykala', 'elite.js');
-  const numbersStr = eliteNumbers.map(num => `'${num}'`).join(',\n  ');
-  const newContent = `import fs from 'fs';\nimport path from 'path';\n\nexport let eliteNumbers = [\n  ${numbersStr}\n];\n\nexport const extractPureNumber = (jid) => {\n  return jid.toString().replace(/[@:].*/g, '');\n};\n\nexport const isElite = (number) => {\n  if (!number) return false;\n  const pureNumber = extractPureNumber(number);\n  const isMatch = eliteNumbers.includes(pureNumber);\n  console.log(\`Elite check: \${number} -> \${pureNumber} -> \${isMatch}\`);\n  return isMatch;\n};\n\nexport const updateEliteNumbers = ${updateEliteNumbers.toString()};\n\nexport const addEliteNumber = ${addEliteNumber.toString()};\n\nexport const removeEliteNumber = ${removeEliteNumber.toString()};\n`;
-
-  fs.writeFileSync(elitePath, newContent);
-  console.log('✅ تم تحديث قائمة النخبة تلقائيًا.');
-};
-
-export const addEliteNumber = (number) => {
-  if (!eliteNumbers.includes(number)) {
-    eliteNumbers.push(number);
-    updateEliteNumbers();
+    const list = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    return list.includes(userNumber);
+  } catch {
+    return false;
   }
-};
+}
 
-export const removeEliteNumber = (number) => {
-  const index = eliteNumbers.indexOf(number);
-  if (index > -1) {
-    eliteNumbers.splice(index, 1);
-    updateEliteNumbers();
-  }
+module.exports = {
+  isElite
 };
