@@ -1,4 +1,5 @@
 const { addEliteNumber, removeEliteNumber, getEliteList } = require('../haykala/elite');
+const config = require('../config');
 
 module.exports = {
   command: 'نخبة',
@@ -15,28 +16,28 @@ module.exports = {
       return reply(`❗ استخدم:\nنخبة اضف +123456789\nنخبة حذف +123456789\nنخبة عرض`);
     }
 
-    const botNumber = sock.user.id.split(':')[0].replace(/\D/g, '');
+    const ownerNumber = config.owners[0]; // رقمك من ملف config.js
 
     const action = args[0].toLowerCase();
 
     if (action === 'اضف') {
-      const number = args[1];
+      const number = args[1]?.replace(/\D/g, '');
       if (!number) return reply('❗ اكتب رقم بعد "اضف".');
-      const added = addEliteNumber(botNumber, number);
+      const added = addEliteNumber(ownerNumber, number);
       if (!added) return reply('⚠️ الرقم موجود بالفعل في النخبة.');
       return reply(`✅ تمت إضافة ${number} إلى النخبة.`);
     }
 
     if (action === 'حذف') {
-      const number = args[1];
+      const number = args[1]?.replace(/\D/g, '');
       if (!number) return reply('❗ اكتب رقم بعد "حذف".');
-      const removed = removeEliteNumber(botNumber, number);
+      const removed = removeEliteNumber(ownerNumber, number);
       if (!removed) return reply('⚠️ الرقم غير موجود في النخبة.');
       return reply(`✅ تم حذف ${number} من النخبة.`);
     }
 
     if (action === 'عرض') {
-      const list = getEliteList(botNumber);
+      const list = getEliteList(ownerNumber);
       if (list.length === 0) return reply('🚫 لا يوجد نخبة بعد.');
       return reply(`🔰 قائمة النخبة:\n${list.join('\n')}`);
     }
