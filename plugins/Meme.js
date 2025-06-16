@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 
 module.exports = {
   command: 'ميم',
@@ -31,20 +29,15 @@ module.exports = {
         return;
       }
 
-      // تحميل الصورة مؤقتًا
+      // تحميل الصورة كـ Buffer
       const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
       const buffer = Buffer.from(response.data, 'binary');
-      const tempPath = path.join(__dirname, `meme_${Date.now()}.jpg`);
-      fs.writeFileSync(tempPath, buffer);
 
-      // إرسال الصورة
+      // إرسال الصورة كـ Buffer
       await sock.sendMessage(msg.key.remoteJid, {
-        image: { url: tempPath },
+        image: buffer,
         caption: `😂 ${meme.title}`
       }, { quoted: msg });
-
-      // حذف الصورة المؤقتة
-      fs.unlinkSync(tempPath);
 
     } catch (error) {
       console.error('❌ خطأ في أمر الميم:', error);
