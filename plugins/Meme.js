@@ -10,20 +10,29 @@ module.exports = {
 
   async execute(sock, msg) {
     try {
-      // جلب الميم من API
-      const res = await axios.get('https://meme-api.com/gimme');
-      const meme = res.data;
+      let meme, imageUrl;
+      let attempts = 0;
+      const maxAttempts = 5;
 
-      // التحقق من أن الرابط صورة فقط
-      if (!/\.(jpg|jpeg|png)$/i.test(meme.url)) {
+      // كرر المحاولة حتى تحصل على صورة أو تنتهي المحاولات
+      while (attempts < maxAttempts) {
+        const res = await axios.get('https://meme-api.com/gimme');
+        meme = res.data;
+        imageUrl = meme.url;
+        if (/\.(jpg|jpeg|png)$/i.test(imageUrl)) break;
+        attempts++;
+      }
+
+      // إذا لم يجد صورة مناسبة
+      if (!/\.(jpg|jpeg|png)$/i.test(imageUrl)) {
         await sock.sendMessage(msg.key.remoteJid, {
-          text: '❌ الميم ليس صورة، حاول مرة أخرى.'
+          text: '❌ لم أستطع جلب صورة ميم مناسبة الآن، حاول لاحقًا.'
         }, { quoted: msg });
         return;
       }
 
       // تحميل الصورة مؤقتًا
-      const response = await axios.get(meme.url, { responseType: 'arraybuffer' });
+      const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
       const buffer = Buffer.from(response.data, 'binary');
       const tempPath = path.join(__dirname, `meme_${Date.now()}.jpg`);
       fs.writeFileSync(tempPath, buffer);
