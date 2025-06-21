@@ -7,8 +7,11 @@ const readline = require('readline');
 const { exec } = require('child_process');
 const logger = require('./utils/console');
 
-const question = (text) => new Promise(resolve => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const question = text => new Promise(resolve => {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
     rl.question(text, answer => {
         rl.close();
         resolve(answer);
@@ -22,27 +25,14 @@ ${chalk.hex('#FFD700')('███████╗███████║██�
 ${chalk.hex('#FFD700')('╚════██║██╔══██║██╔══██║██╔═══╝ ██║   ██║██║      ╚██╔╝   ██╔══██║')}
 ${chalk.hex('#FFD700')('███████║██║  ██║██║  ██║██║     ╚██████╔╝███████╗  ██║    ██║  ██║')}
 ${chalk.hex('#FFD700')('╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝  ╚═╝    ╚═╝  ╚═╝')}
-${chalk.hex('#FFD700')('                         ██╗  ██╗██╗  ██╗')}
-${chalk.hex('#FFD700')('                         ╚██╗██╔╝╚██╗██╔╝')}
-${chalk.hex('#FFD700')('                          ╚███╔╝  ╚███╔╝ ')}
-${chalk.hex('#FFD700')('                          ██╔██╗  ██╔██╗ ')}
-${chalk.hex('#FFD700')('                         ██╔╝ ██╗██╔╝ ██╗')}
-${chalk.hex('#FFD700')('                         ╚═╝  ╚═╝╚═╝  ╚═╝')}
 `;
 
 function playSound(name) {
     const controlPath = path.join(__dirname, 'sounds', 'sound.txt');
     const status = fs.existsSync(controlPath) ? fs.readFileSync(controlPath, 'utf-8').trim() : 'off';
-    if (status !== 'on') return;
-
+    if (status !== '{on}') return;
     const filePath = path.join(__dirname, 'sounds', name);
-    if (fs.existsSync(filePath)) {
-        exec(`mpv --no-terminal --really-quiet "${filePath}"`, (error) => {
-            if (error) {
-                logger.error(`Failed to play sound ${name}: ${error.message}`);
-            }
-        });
-    }
+    if (fs.existsSync(filePath)) exec(`mpv --no-terminal --really-quiet "${filePath}"`);
 }
 
 async function startBot() {
@@ -53,25 +43,12 @@ async function startBot() {
 
         playSound('shadow.mp3');
 
-        const sessionDir = path.join(__dirname, 'ملف_الاتصال');
+        // استخدام اسم مجلد اتصال خاص لكل مستخدم بناءً على الرقم
+        const userId = process.env.USER_PHONE || 'default';
+        const sessionDir = path.join(__dirname, 'ملفات_الاتصال', userId);
         await fs.ensureDir(sessionDir);
 
         const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
-
-        let phoneNumber = '';
-        if (!state.creds.registered) {
-            console.log(chalk.bold('\n[ SETUP ] Please enter your phone number to receive the pairing code:'));
-            console.log(chalk.dim('          (Type "#" to cancel)\n'));
-
-            phoneNumber = await question(chalk.bgHex('#FFD700').black(' Phone Number : '));
-            if (phoneNumber.trim() === '#') process.exit();
-
-            phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
-            if (!phoneNumber.match(/^\d{10,15}$/)) {
-                console.log("\n[ ERROR ] Invalid phone number.\n");
-                process.exit(1);
-            }
-        }
 
         const sock = makeWASocket({
             auth: state,
@@ -79,63 +56,41 @@ async function startBot() {
             browser: ['MacOs', 'Chrome', '1.0.0'],
             logger: pino({ level: 'silent' }),
             markOnlineOnConnect: true,
-            generateHighQualityLinkPreview: true,
-            usePairingCode: true,
-            phoneNumber: phoneNumber
+            generateHighQualityLinkPreview: true
         });
 
-        sock.ev.on('connection.update', async (update) => {
-            const { connection, lastDisconnect, pairingCode } = update;
-
-            if (pairingCode) {
-                console.log(`\n[PAIRING CODE] رمز الاقتران الخاص بك هو: ${pairingCode}\n`);
-                const code = await question('Enter the pairing code you received on your phone: ');
-                try {
-                    await sock.submitPairingCode(code.trim());
-                    console.log(chalk.green('Pairing code submitted successfully!'));
-                } catch (e) {
-                    console.error('Failed to submit pairing code:', e);
-                    process.exit(1);
-                }
+        if (!sock.authState.creds.registered) {
+            console.log(chalk.bold('\n[ SETUP ] أدخل رقمك لاستلام كود الاقتران:'));
+            let phoneNumber = await question(chalk.bgHex('#FFD700').black(' رقم الهاتف: '));
+            phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
+            if (!phoneNumber.match(/^\d{10,15}$/)) {
+                console.log("\n[ ERROR ] رقم غير صالح.\n");
+                process.exit(1);
             }
+            const code = await sock.requestPairingCode(phoneNumber);
+            console.log(`\nكود الاقتران: ${code}\n`);
+        }
 
-            if (connection === 'connecting') {
-                logger.info('Connecting to WhatsApp...');
-            }
-
+        sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
+            if (connection === 'connecting') logger.info('جاري الاتصال...');
             if (connection === 'open') {
-                logger.success(`CONNECTED! USER ID: ${sock.user.id}`);
-
+                logger.success(`تم الاتصال: ${sock.user.id}`);
                 try {
                     const { addEliteNumber } = require('./haykala/elite');
                     const botNumber = sock.user.id.split(':')[0].replace(/[^0-9]/g, '');
                     await addEliteNumber(botNumber);
-                    logger.info(`ADDED ${botNumber} AS ELITE!`);
-                } catch (e) {
-                    logger.error('فشل في إضافة رقم البوت إلى النخبة:', e.message);
-                }
-
+                } catch (e) {}
                 require('./handlers/handler').handleMessagesLoader();
                 listenToConsole(sock);
             }
-
             if (connection === 'close') {
-                const reason = lastDisconnect?.error?.output?.statusCode || DisconnectReason.unknown;
-                const message = lastDisconnect?.error?.message || 'Unknown reason';
-
-                if (message.includes('Bad MAC')) {
-                    logger.warn('⚠ Bad MAC error ignored.');
-                    return;
-                }
-
-                logger.warn(`Disconnected: ${message}`);
-
-                if (reason === DisconnectReason.loggedOut) {
+                const code = lastDisconnect?.error?.output?.statusCode;
+                if (code === DisconnectReason.loggedOut) {
+                    logger.error('تم تسجيل الخروج.');
                     playSound('LOGGOUT.mp3');
-                    logger.error('You have been logged out.');
                     process.exit(1);
                 } else {
-                    logger.info('Reconnecting...');
+                    logger.warn('إعادة الاتصال بعد فشل.');
                     setTimeout(startBot, 3000);
                 }
             }
@@ -146,11 +101,7 @@ async function startBot() {
                 const { handleMessages } = require('./handlers/handler');
                 await handleMessages(sock, m);
             } catch (err) {
-                if (err.message?.includes('Bad MAC')) {
-                    logger.warn('❌ Bad MAC detected while handling message. Skipped.');
-                    return;
-                }
-                logger.error('Error while handling message:', err);
+                logger.error('خطأ أثناء المعالجة:', err);
                 playSound('ERROR.mp3');
             }
         });
@@ -158,10 +109,6 @@ async function startBot() {
         sock.ev.on('creds.update', saveCreds);
 
     } catch (err) {
-        if (err.message?.includes('Bad MAC')) {
-            logger.warn('❌ Bad MAC detected on startup. Ignored.');
-            return;
-        }
         logger.error('Startup error:', err);
         playSound('ERROR.mp3');
         setTimeout(startBot, 3000);
@@ -169,12 +116,13 @@ async function startBot() {
 }
 
 function listenToConsole(sock) {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
-    rl.on('line', (line) => {
-        console.log('[ CMD ] Unknown command.');
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    rl.on('line', () => {
+        console.log('[ CMD ] الأمر غير معروف.');
     });
 }
 
 startBot();
-          
