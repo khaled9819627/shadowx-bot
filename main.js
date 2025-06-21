@@ -58,32 +58,12 @@ async function startBot() {
 
         const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
 
-        const sock = makeWASocket({
-            auth: state,
-            printQRInTerminal: false, // لا نستخدم QR
-            browser: ['MacOs', 'Chrome', '1.0.0'],
-            logger: pino({ level: 'silent' }),
-            markOnlineOnConnect: true,
-            generateHighQualityLinkPreview: true
-        });
-
-        sock.ev.on('groups.upsert', async (groups) => {
-            for (const group of groups) {
-                try {
-                    await sock.groupMetadata(group.id);
-                    console.log(`[+] تم تحميل بيانات مجموعة: ${group.subject}`);
-                } catch (err) {
-                    console.warn(`[-] فشل في تحميل بيانات مجموعة: ${group.id}`);
-                }
-            }
-        });
-
-        // إذا لم يكن مسجل، نبدأ عملية الاقتران
+        let phoneNumber = '';
         if (!state.creds.registered) {
             console.log(chalk.bold('\n[ SETUP ] Please enter your phone number to receive the pairing code:'));
             console.log(chalk.dim('          (Type "#" to cancel)\n'));
 
-            let phoneNumber = await question(chalk.bgHex('#FFD700').black(' Phone Number : '));
+            phoneNumber = await question(chalk.bgHex('#FFD700').black(' Phone Number : '));
             if (phoneNumber.trim() === '#') process.exit();
 
             phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
@@ -91,34 +71,33 @@ async function startBot() {
                 console.log("\n[ ERROR ] Invalid phone number.\n");
                 process.exit(1);
             }
-
-            try {
-                // طلب رمز الاقتران
-                const pairingCode = await sock.requestPairingCode(phoneNumber);
-                console.log('\n────────── Pairing Information ──────────');
-                console.log(`Pairing code sent to: ${phoneNumber}`);
-                console.log('Please enter the pairing code you received on your phone:');
-                console.log('─────────────────────────────────────────\n');
-
-                const code = await question(chalk.bgHex('#FFD700').black(' Pairing Code : '));
-
-                if (!code || code.trim().length === 0) {
-                    console.log('[ ERROR ] Pairing code is required.');
-                    process.exit(1);
-                }
-
-                // إرسال رمز الاقتران لإكمال الربط
-                await sock.submitPairingCode(code.trim());
-
-                console.log(chalk.green('\n[ SUCCESS ] Pairing completed successfully!\n'));
-            } catch (error) {
-                console.log("\n[ ERROR ] Failed to complete pairing:", error.message || error);
-                process.exit(1);
-            }
         }
 
+        const sock = makeWASocket({
+            auth: state,
+            printQRInTerminal: false,
+            browser: ['MacOs', 'Chrome', '1.0.0'],
+            logger: pino({ level: 'silent' }),
+            markOnlineOnConnect: true,
+            generateHighQualityLinkPreview: true,
+            usePairingCode: true,
+            phoneNumber: phoneNumber
+        });
+
         sock.ev.on('connection.update', async (update) => {
-            const { connection, lastDisconnect } = update;
+            const { connection, lastDisconnect, pairingCode } = update;
+
+            if (pairingCode) {
+                console.log(`\n[PAIRING CODE] رمز الاقتران الخاص بك هو: ${pairingCode}\n`);
+                const code = await question('Enter the pairing code you received on your phone: ');
+                try {
+                    await sock.submitPairingCode(code.trim());
+                    console.log(chalk.green('Pairing code submitted successfully!'));
+                } catch (e) {
+                    console.error('Failed to submit pairing code:', e);
+                    process.exit(1);
+                }
+            }
 
             if (connection === 'connecting') {
                 logger.info('Connecting to WhatsApp...');
@@ -198,3 +177,4 @@ function listenToConsole(sock) {
 }
 
 startBot();
+          
