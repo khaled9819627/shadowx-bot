@@ -33,11 +33,10 @@ ${chalk.hex('#FFD700')('                         ╚═╝  ╚═╝╚═╝  
 function playSound(name) {
     const controlPath = path.join(__dirname, 'sounds', 'sound.txt');
     const status = fs.existsSync(controlPath) ? fs.readFileSync(controlPath, 'utf-8').trim() : 'off';
-    if (status !== 'on') return; // تم تعديل الشرط ليقارن بـ 'on' وليس '{on}'
+    if (status !== 'on') return;
 
     const filePath = path.join(__dirname, 'sounds', name);
     if (fs.existsSync(filePath)) {
-        // استخدم exec مع اقتباسات صحيحة
         exec(`mpv --no-terminal --really-quiet "${filePath}"`, (error) => {
             if (error) {
                 logger.error(`Failed to play sound ${name}: ${error.message}`);
@@ -61,7 +60,7 @@ async function startBot() {
 
         const sock = makeWASocket({
             auth: state,
-            printQRInTerminal: false,
+            printQRInTerminal: false, // لا نستخدم QR
             browser: ['MacOs', 'Chrome', '1.0.0'],
             logger: pino({ level: 'silent' }),
             markOnlineOnConnect: true,
@@ -79,7 +78,8 @@ async function startBot() {
             }
         });
 
-        if (!sock.authState.creds.registered) {
+        // إذا لم يكن مسجل، نبدأ عملية الاقتران
+        if (!state.creds.registered) {
             console.log(chalk.bold('\n[ SETUP ] Please enter your phone number to receive the pairing code:'));
             console.log(chalk.dim('          (Type "#" to cancel)\n'));
 
@@ -93,26 +93,32 @@ async function startBot() {
             }
 
             try {
-                // في نسخة Baileys الحالية لا يوجد دالة requestPairingCode مباشرة
-                // يمكنك هنا تنفيذ طريقة تسجيل الدخول عبر QR أو غيرها حسب التوثيق
-                console.log('[ INFO ] Please scan the QR code to authenticate.');
-                // بدلاً من requestPairingCode، يمكنك عرض QR في الطرفية إذا printQRInTerminal = true
-                // أو استخدام مكتبة خارجية لعرض QR
+                // طلب رمز الاقتران
+                const pairingCode = await sock.requestPairingCode(phoneNumber);
+                console.log('\n────────── Pairing Information ──────────');
+                console.log(`Pairing code sent to: ${phoneNumber}`);
+                console.log('Please enter the pairing code you received on your phone:');
+                console.log('─────────────────────────────────────────\n');
+
+                const code = await question(chalk.bgHex('#FFD700').black(' Pairing Code : '));
+
+                if (!code || code.trim().length === 0) {
+                    console.log('[ ERROR ] Pairing code is required.');
+                    process.exit(1);
+                }
+
+                // إرسال رمز الاقتران لإكمال الربط
+                await sock.submitPairingCode(code.trim());
+
+                console.log(chalk.green('\n[ SUCCESS ] Pairing completed successfully!\n'));
             } catch (error) {
-                console.log("\n[ ERROR ] Failed to get pairing code.\n");
+                console.log("\n[ ERROR ] Failed to complete pairing:", error.message || error);
                 process.exit(1);
             }
         }
 
         sock.ev.on('connection.update', async (update) => {
-            const { connection, lastDisconnect, qr } = update;
-
-            if (qr) {
-                // عرض QR في الطرفية
-                const qrcode = require('qrcode-terminal');
-                qrcode.generate(qr, { small: true });
-                logger.info('Please scan the QR code above with your WhatsApp.');
-            }
+            const { connection, lastDisconnect } = update;
 
             if (connection === 'connecting') {
                 logger.info('Connecting to WhatsApp...');
