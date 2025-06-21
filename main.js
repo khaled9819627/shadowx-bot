@@ -2,7 +2,20 @@ const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = requi
 
 const question = text => new Promise(resolve => { const rl = readline.createInterface({ input: process.stdin, output: process.stdout }); rl.question(text, answer => { rl.close(); resolve(answer); }); });
 
-const asciiArt = ${chalk.hex('#FFD700')('███████╗██╗  ██╗ █████╗ ██████╗  ██████╗ ██╗    ██╗   ██╗  ██╗  ██╗')} ${chalk.hex('#FFD700')('██╔════╝██║  ██║██╔══██╗██╔══██╗██╔═══██╗██║    ╚██╗ ██╔╝ ██║  ██║')} ${chalk.hex('#FFD700')('███████╗███████║███████║██████╔╝██║   ██║██║     ╚████╔╝  ███████║')} ${chalk.hex('#FFD700')('╚════██║██╔══██║██╔══██║██╔═══╝ ██║   ██║██║      ╚██╔╝   ██╔══██║')} ${chalk.hex('#FFD700')('███████║██║  ██║██║  ██║██║     ╚██████╔╝███████╗  ██║    ██║  ██║')} ${chalk.hex('#FFD700')('╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝  ╚═╝    ╚═╝  ╚═╝')} ${chalk.hex('#FFD700')('                         ██╗  ██╗██╗  ██╗')} ${chalk.hex('#FFD700')('                         ╚██╗██╔╝╚██╗██╔╝')} ${chalk.hex('#FFD700')('                          ╚███╔╝  ╚███╔╝ ')} ${chalk.hex('#FFD700')('                          ██╔██╗  ██╔██╗ ')} ${chalk.hex('#FFD700')('                         ██╔╝ ██╗██╔╝ ██╗')} ${chalk.hex('#FFD700')('                         ╚═╝  ╚═╝╚═╝  ╚═╝')};
+const asciiArt = `
+${chalk.hex('#FFD700')('███████╗██╗  ██╗ █████╗ ██████╗  ██████╗ ██╗    ██╗   ██╗  ██╗  ██╗')}
+${chalk.hex('#FFD700')('██╔════╝██║  ██║██╔══██╗██╔══██╗██╔═══██╗██║    ╚██╗ ██╔╝ ██║  ██║')}
+${chalk.hex('#FFD700')('███████╗███████║███████║██████╔╝██║   ██║██║     ╚████╔╝  ███████║')}
+${chalk.hex('#FFD700')('╚════██║██╔══██║██╔══██║██╔═══╝ ██║   ██║██║      ╚██╔╝   ██╔══██║')}
+${chalk.hex('#FFD700')('███████║██║  ██║██║  ██║██║     ╚██████╔╝███████╗  ██║    ██║  ██║')}
+${chalk.hex('#FFD700')('╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝  ╚═╝    ╚═╝  ╚═╝')}
+${chalk.hex('#FFD700')('                         ██╗  ██╗██╗  ██╗')}
+${chalk.hex('#FFD700')('                         ╚██╗██╔╝╚██╗██╔╝')}
+${chalk.hex('#FFD700')('                          ╚███╔╝  ╚███╔╝ ')}
+${chalk.hex('#FFD700')('                          ██╔██╗  ██╔██╗ ')}
+${chalk.hex('#FFD700')('                         ██╔╝ ██╗██╔╝ ██╗')}
+${chalk.hex('#FFD700')('                         ╚═╝  ╚═╝╚═╝  ╚═╝')}
+`;
 
 function playSound(name) { const controlPath = path.join(__dirname, 'sounds', 'sound.txt'); const status = fs.existsSync(controlPath) ? fs.readFileSync(controlPath, 'utf-8').trim() : 'off'; if (status !== '{on}') return; const filePath = path.join(__dirname, 'sounds', name); if (fs.existsSync(filePath)) exec(mpv --no-terminal --really-quiet "${filePath}"); }
 
