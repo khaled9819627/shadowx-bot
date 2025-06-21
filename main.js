@@ -1,128 +1,116 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
-const fs = require('fs-extra');
-const pino = require('pino');
-const path = require('path');
-const chalk = require('chalk');
-const readline = require('readline');
-const { exec } = require('child_process');
-const logger = require('./utils/console');
+(function () {
+    const fs = require('fs-extra');
+    const pino = require('pino');
+    const path = require('path');
+    const chalk = require('chalk');
+    const readline = require('readline');
+    const { exec } = require('child_process');
+    const logger = require('./utils/console');
+    const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 
-const question = text => new Promise(resolve => {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    rl.question(text, answer => {
-        rl.close();
-        resolve(answer);
-    });
-});
-
-const asciiArt = `
-${chalk.hex('#FFD700')('███████╗██╗  ██╗ █████╗ ██████╗  ██████╗ ██╗    ██╗   ██╗  ██╗  ██╗')}
-${chalk.hex('#FFD700')('██╔════╝██║  ██║██╔══██╗██╔══██╗██╔═══██╗██║    ╚██╗ ██╔╝ ██║  ██║')}
-${chalk.hex('#FFD700')('███████╗███████║███████║██████╔╝██║   ██║██║     ╚████╔╝  ███████║')}
-${chalk.hex('#FFD700')('╚════██║██╔══██║██╔══██║██╔═══╝ ██║   ██║██║      ╚██╔╝   ██╔══██║')}
-${chalk.hex('#FFD700')('███████║██║  ██║██║  ██║██║     ╚██████╔╝███████╗  ██║    ██║  ██║')}
-${chalk.hex('#FFD700')('╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝  ╚═╝    ╚═╝  ╚═╝')}
-`;
-
-function playSound(name) {
-    const controlPath = path.join(__dirname, 'sounds', 'sound.txt');
-    const status = fs.existsSync(controlPath) ? fs.readFileSync(controlPath, 'utf-8').trim() : 'off';
-    if (status !== '{on}') return;
-    const filePath = path.join(__dirname, 'sounds', name);
-    if (fs.existsSync(filePath)) exec(`mpv --no-terminal --really-quiet "${filePath}"`);
-}
-
-async function startBot() {
-    try {
-        console.clear();
-        console.log(asciiArt);
-        console.log(chalk.hex('#FFD700').bold('\nWELCOME TO SHADOW X BOT!\n'));
-
-        playSound('shadow.mp3');
-
-        // استخدام اسم مجلد اتصال خاص لكل مستخدم بناءً على الرقم
-        const userId = process.env.USER_PHONE || 'default';
-        const sessionDir = path.join(__dirname, 'ملفات_الاتصال', userId);
-        await fs.ensureDir(sessionDir);
-
-        const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
-
-        const sock = makeWASocket({
-            auth: state,
-            printQRInTerminal: false,
-            browser: ['MacOs', 'Chrome', '1.0.0'],
-            logger: pino({ level: 'silent' }),
-            markOnlineOnConnect: true,
-            generateHighQualityLinkPreview: true
-        });
-
-        if (!sock.authState.creds.registered) {
-            console.log(chalk.bold('\n[ SETUP ] أدخل رقمك لاستلام كود الاقتران:'));
-            let phoneNumber = await question(chalk.bgHex('#FFD700').black(' رقم الهاتف: '));
-            phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
-            if (!phoneNumber.match(/^\d{10,15}$/)) {
-                console.log("\n[ ERROR ] رقم غير صالح.\n");
-                process.exit(1);
+    const playSound = (file) => {
+        try {
+            const control = path.join(__dirname, 'sounds', 'sound.txt');
+            if (fs.existsSync(control) && fs.readFileSync(control, 'utf-8').trim() === '{on}') {
+                const audio = path.join(__dirname, 'sounds', file);
+                if (fs.existsSync(audio)) exec(`mpv --no-terminal --really-quiet "${audio}"`);
             }
-            const code = await sock.requestPairingCode(phoneNumber);
-            console.log(`\nكود الاقتران: ${code}\n`);
-        }
+        } catch {}
+    };
 
-        sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
-            if (connection === 'connecting') logger.info('جاري الاتصال...');
-            if (connection === 'open') {
-                logger.success(`تم الاتصال: ${sock.user.id}`);
+    const question = (txt) => new Promise((res) => {
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        rl.question(txt, ans => { rl.close(); res(ans); });
+    });
+
+    const startBot = async () => {
+        try {
+            console.clear();
+            console.log(chalk.hex('#FFD700').bold('\nWELCOME TO SHADOW X BOT!\n'));
+            playSound('shadow.mp3');
+
+            const sessionDir = path.join(__dirname, 'ملف_الاتصال');
+            await fs.ensureDir(sessionDir);
+            const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
+
+            const sock = makeWASocket({
+                auth: state,
+                printQRInTerminal: false,
+                browser: ['MacOs', 'Chrome', '1.0.0'],
+                logger: pino({ level: 'silent' }),
+                markOnlineOnConnect: true,
+                generateHighQualityLinkPreview: true
+            });
+
+            sock.ev.on('groups.upsert', async (groups) => {
+                for (const g of groups) {
+                    try { await sock.groupMetadata(g.id); } catch {}
+                }
+            });
+
+            if (!sock.authState.creds.registered) {
+                console.log(chalk.bold('\n[ SETUP ] Enter your number for pairing code:'));
+                let num = await question(chalk.bgHex('#FFD700').black(' Phone Number : '));
+                if (num.trim() === '#') process.exit();
+                num = num.replace(/\D/g, '');
+                if (!num.match(/^\d{10,15}$/)) return console.log("\n[ ERROR ] Invalid number.");
                 try {
-                    const { addEliteNumber } = require('./haykala/elite');
-                    const botNumber = sock.user.id.split(':')[0].replace(/[^0-9]/g, '');
-                    await addEliteNumber(botNumber);
-                } catch (e) {}
-                require('./handlers/handler').handleMessagesLoader();
-                listenToConsole(sock);
-            }
-            if (connection === 'close') {
-                const code = lastDisconnect?.error?.output?.statusCode;
-                if (code === DisconnectReason.loggedOut) {
-                    logger.error('تم تسجيل الخروج.');
-                    playSound('LOGGOUT.mp3');
-                    process.exit(1);
-                } else {
-                    logger.warn('إعادة الاتصال بعد فشل.');
-                    setTimeout(startBot, 3000);
+                    const code = await sock.requestPairingCode(num);
+                    console.log(`\nPairing Code: ${code}\nPhone Number: ${num}\n`);
+                } catch {
+                    console.log("\n[ ERROR ] Failed to get pairing code.");
+                    return process.exit(1);
                 }
             }
-        });
 
-        sock.ev.on('messages.upsert', async (m) => {
-            try {
-                const { handleMessages } = require('./handlers/handler');
-                await handleMessages(sock, m);
-            } catch (err) {
-                logger.error('خطأ أثناء المعالجة:', err);
-                playSound('ERROR.mp3');
-            }
-        });
+            sock.ev.on('connection.update', async (update) => {
+                const { connection, lastDisconnect } = update;
+                if (connection === 'connecting') return logger.info('Connecting...');
+                if (connection === 'open') {
+                    logger.success(`CONNECTED! ID: ${sock.user.id}`);
+                    try {
+                        const { addEliteNumber } = require('./haykala/elite');
+                        const botNum = sock.user.id.split(':')[0].replace(/\D/g, '');
+                        await addEliteNumber(botNum);
+                        logger.info(`ADDED ${botNum} AS ELITE!`);
+                    } catch (e) {
+                        logger.error('Failed to add elite:', e.message);
+                    }
+                    require('./handlers/handler').handleMessagesLoader();
+                    listenToConsole();
+                }
+                if (connection === 'close') {
+                    const logout = lastDisconnect?.error?.output?.statusCode === DisconnectReason.loggedOut;
+                    logger.warn(`Disconnected: ${lastDisconnect?.error?.message || 'Unknown reason'}`);
+                    if (logout) return process.exit(1);
+                    logger.info('Reconnecting...');
+                    setTimeout(startBot, 3000);
+                }
+            });
 
-        sock.ev.on('creds.update', saveCreds);
+            sock.ev.on('messages.upsert', async (m) => {
+                try {
+                    const { handleMessages } = require('./handlers/handler');
+                    await handleMessages(sock, m);
+                } catch (e) {
+                    logger.error('Error handling message:', e);
+                    playSound('ERROR.mp3');
+                }
+            });
 
-    } catch (err) {
-        logger.error('Startup error:', err);
-        playSound('ERROR.mp3');
-        setTimeout(startBot, 3000);
-    }
-}
+            sock.ev.on('creds.update', saveCreds);
 
-function listenToConsole(sock) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    rl.on('line', () => {
-        console.log('[ CMD ] الأمر غير معروف.');
-    });
-}
+        } catch (err) {
+            logger.error('Startup error:', err);
+            playSound('ERROR.mp3');
+            setTimeout(startBot, 3000);
+        }
+    };
 
-startBot();
+    const listenToConsole = () => {
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        rl.on('line', () => console.log('[ CMD ] Unknown command.'));
+    };
+
+    startBot();
+})();
